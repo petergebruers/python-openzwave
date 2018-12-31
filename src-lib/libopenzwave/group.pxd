@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#cython: language_level=3
 """
 This file is part of **python-openzwave** project https://github.com/OpenZWave/python-openzwave.
 
