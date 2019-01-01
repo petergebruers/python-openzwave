@@ -82,7 +82,6 @@ class Extension(pyozw_common.Extension):
         backend
     ):
         for key, value in environment.build_environment.items():
-            print(key, ':', value)
             os.environ[key] = value
 
         extra_objects = []
@@ -247,7 +246,6 @@ class Library(pyozw_common.Library):
             '/wd4267',
             '/wd4996',
             '/wd4351'
-
         ]
 
         if environment.visual_c.version > 10.0:

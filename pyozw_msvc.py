@@ -377,8 +377,6 @@ class VisualCInfo(object):
                         base=path,
                         root=path
                     )
-
-            print(self.__installed_versions)
         return self.__installed_versions
 
     @property
