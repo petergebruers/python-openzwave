@@ -239,12 +239,14 @@ class VisualCInfo(object):
 
     @property
     def f_sharp_path(self):
-        f_sharp_path = _get_reg_value(
-            'Microsoft\\VisualStudio\\{0:.1f}\\Setup\\F#'.format(
-                self.version
-            ),
-            'ProductDir'
+
+        reg_path = (
+            _winreg.HKEY_LOCAL_MACHINE,
+            'SOFTWARE\Wow6432Node\Microsoft\\VisualStudio\\'
+            '{0:.1f}\\Setup\\F#'.format(self.version)
         )
+
+        f_sharp_path = _get_reg_value(reg_path, 'ProductDir')
         if f_sharp_path and os.path.exists(f_sharp_path):
             return f_sharp_path
 
@@ -581,7 +583,8 @@ class VisualCInfo(object):
 
         reg_path = (
             _winreg.HKEY_LOCAL_MACHINE,
-            'SOFTWARE\\Wow6432Node\\Microsoft\Windows\\CurrentVersion\\App Paths\\hhw.exe'
+            'SOFTWARE\\Wow6432Node\\Microsoft\Windows\\'
+            'CurrentVersion\\App Paths\\hhw.exe'
         )
 
         html_help_path = _get_reg_value(reg_path, 'Path')
