@@ -1103,7 +1103,7 @@ class WindowsSDKInfo(object):
         if not os.path.exists(include_path):
             include_path = os.path.split(include_path)[0]
 
-        includes = []
+        includes = [include_path]
 
         for path in ('ucrt', 'cppwinrt', 'shared', 'um', 'winrt'):
             pth = os.path.join(include_path, path)
@@ -1521,7 +1521,7 @@ class NETInfo(object):
         tools_directory = self.net_fx_tools_directory
         if not tools_directory:
             return
-        
+
         if 'NETFX' in tools_directory:
             if 'x64' in tools_directory:
                 return (
