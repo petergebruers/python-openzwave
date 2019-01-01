@@ -118,6 +118,7 @@ class Extension(pyozw_common.Extension):
             '/wd4996',
             '/wd4244',
             '/wd4005',
+            '/wd4800',
         ]
 
         if pyozw_common.DEBUG_BUILD:
