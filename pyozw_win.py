@@ -82,6 +82,7 @@ class Extension(pyozw_common.Extension):
         backend
     ):
         for key, value in environment.build_environment.items():
+            print(key, ':', value)
             os.environ[key] = value
 
         extra_objects = []
@@ -104,7 +105,6 @@ class Extension(pyozw_common.Extension):
             # Specify floating-point behavior.
             '/fp:precise',
             # Specifies standard behavior
-            '/Zc:inline',
             '/Zc:wchar_t',
             # Specifies standard behavior
             '/Zc:forScope',
@@ -116,14 +116,20 @@ class Extension(pyozw_common.Extension):
             '/wd4244',
             '/wd4005',
             '/wd4800',
+            '/wd4351',
         ]
 
         if environment.visual_c.version > 10.0:
-            # Forces writes to the program database (PDB) file to be
-            # serialized through MSPDBSRV.EXE.
-            # this compiler flag is not valid on
+            # these compiler flags are not valid on
             # Visual C++ version 10.0 and older
-            extra_compile_args += ['/FS']
+
+            extra_compile_args += [
+                # Forces writes to the program database (PDB) file to be
+                # serialized through MSPDBSRV.EXE.
+                '/FS',
+                # Specifies standard behavior
+                '/Zc:inline'
+            ]
 
         if pyozw_common.DEBUG_BUILD:
             define_macros += [('_DEBUG', 1)]
@@ -228,8 +234,6 @@ class Library(pyozw_common.Library):
             # Specify floating-point behavior.
             '/fp:precise',
             # Specifies standard behavior
-            '/Zc:inline',
-            # Specifies standard behavior
             '/Zc:wchar_t',
             # Specifies standard behavior
             '/Zc:forScope',
@@ -246,11 +250,16 @@ class Library(pyozw_common.Library):
         ]
 
         if environment.visual_c.version > 10.0:
-            # Forces writes to the program database (PDB) file to be
-            # serialized through MSPDBSRV.EXE.
-            # this compiler flag is not valid on
+            # these compiler flags are not valid on
             # Visual C++ version 10.0 and older
-            extra_compile_args += ['/FS']
+
+            extra_compile_args += [
+                # Forces writes to the program database (PDB) file to be
+                # serialized through MSPDBSRV.EXE.
+                '/FS',
+                # Specifies standard behavior
+                '/Zc:inline'
+            ]
 
         # not used but here for completeness.
         extra_link_args = [
