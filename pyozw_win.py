@@ -184,7 +184,7 @@ class Library(pyozw_common.Library):
 
     def __init__(self, openzwave):
 
-        build_path = os.path.join(openzwave, 'build')
+        build_path = self.build_path = os.path.join(openzwave, 'build')
 
         build_version_file(openzwave)
         pyozw_common.build_dll_main(openzwave)
@@ -290,6 +290,11 @@ class Library(pyozw_common.Library):
         pass
 
     def build(self, command_class):
+        if os.path.exists(
+            os.path.join(self.build_path + '\\lib_build', 'OpenZWave.lib')
+        ):
+            return
+
         objects = []
         thread_event = threading.Event()
 
