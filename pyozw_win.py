@@ -223,10 +223,6 @@ class Library(pyozw_common.Library):
             '/Oy',
             # Generates intrinsic functions.
             '/Oi',
-            # Forces writes to the program database (PDB) file to be
-            # serialized through MSPDBSRV.EXE.
-            '/FS',
-
             # Renames program database file.
             '/Fd"{0}\\lib_build\\OpenZWave.pdb"'.format(build_path),
             # Specify floating-point behavior.
@@ -248,6 +244,14 @@ class Library(pyozw_common.Library):
             '/wd4996',
 
         ]
+
+        if environment.visual_c.version > 10.0:
+            # Forces writes to the program database (PDB) file to be
+            # serialized through MSPDBSRV.EXE.
+            # this compiler flag is not valid on
+            # Visual C++ version 10.0 and older
+            extra_compile_args += ['/FS']
+
         # not used but here for completeness.
         extra_link_args = [
             '/IGNORE:4098',
