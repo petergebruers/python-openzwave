@@ -556,35 +556,36 @@ class VisualCInfo(object):
         else:
             vc_tools_path = self._installed_c_paths[vc_version]['base']
 
+        print(vc_tools_path)
+
         lib_path = os.path.join(vc_tools_path, 'lib')
 
         if not os.path.exists(lib_path):
-            if 'tools' not in vc_tools_path.lower():
-                tools_path = os.path.join(vc_tools_path, 'Tools')
-                if os.path.exists(tools_path):
-                    if 'MSVC' in os.listdir(tools_path):
-                        tools_path = os.path.join(tools_path, 'MSVC')
-                        versions = os.listdir(tools_path)
-                        max_version = (0, 0, 0)
-                        found_version = ''
+            tools_path = os.path.join(vc_tools_path, 'Tools', 'MSVC')
+            print(tools_path)
 
-                        for version in versions:
+            if os.path.exists(tools_path):
+                versions = os.listdir(tools_path)
+                max_version = (0, 0, 0)
+                found_version = ''
 
-                            try:
-                                ver = tuple(
-                                    int(vr) for vr in version.split('.')
-                                )
-                            except ValueError:
-                                continue
-
-                            if ver > max_version:
-                                max_version = ver
-                                found_version = version
-
-                        vc_tools_path = os.path.join(
-                            tools_path,
-                            found_version
+                for version in versions:
+                    print(version)
+                    try:
+                        ver = tuple(
+                            int(vr) for vr in version.split('.')
                         )
+                    except ValueError:
+                        continue
+
+                    if ver > max_version:
+                        max_version = ver
+                        found_version = version
+
+                vc_tools_path = os.path.join(
+                    tools_path,
+                    found_version
+                )
 
         return vc_tools_path
 
