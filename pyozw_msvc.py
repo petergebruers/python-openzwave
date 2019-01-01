@@ -503,17 +503,25 @@ class VisualCInfo(object):
         redist_path = self.tools_redist_directory
 
         for root, dirs, files in os.walk(redist_path):
-            if 'onecore' not in root:
-                for folder_name in folder_names:
-                    if folder_name in dirs:
-                        if x64 and ('amd64' in root or 'x64' in root):
-                            return os.path.join(root, folder_name)
-                        elif (
-                            not x64 and
-                            'amd64' not in root
-                            and 'x64' not in root
-                        ):
-                            return os.path.join(root, folder_name)
+            def pass_directory():
+                for item in ('onecore', 'arm', 'spectre'):
+                    if item in root.lower():
+                        return True
+                return False
+
+            if pass_directory():
+                continue
+
+            for folder_name in folder_names:
+                if folder_name in dirs:
+                    if x64 and ('amd64' in root or 'x64' in root):
+                        return os.path.join(root, folder_name)
+                    elif (
+                        not x64 and
+                        'amd64' not in root
+                        and 'x64' not in root
+                    ):
+                        return os.path.join(root, folder_name)
 
     @property
     def tools_redist_directory(self):
@@ -1520,6 +1528,9 @@ class NETInfo(object):
     @property
     def lib(self):
         sdk_directory = self.netfx_sdk_directory
+        if not sdk_directory:
+            return []
+
         sdk_directory = os.path.join(sdk_directory, 'lib', 'um')
 
         if self.platform == 'x64':
@@ -1862,12 +1873,12 @@ class Environment(object):
 if __name__ == '__main__':
     e = Environment()
     print(e)
-    print('\n\n')
-    for k, v in e:
-        if os.pathsep in v:
-            print(k + ':')
-            for itm in v.split(os.pathsep):
-                print('   ', itm)
-        else:
-            print(k + ':', v)
-        print()
+    # print('\n\n')
+    # for k, v in e:
+    #     if os.pathsep in v:
+    #         print(k + ':')
+    #         for itm in v.split(os.pathsep):
+    #             print('   ', itm)
+    #     else:
+    #         print(k + ':', v)
+    #     print()
