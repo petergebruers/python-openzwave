@@ -1873,12 +1873,12 @@ class Environment(object):
 if __name__ == '__main__':
     e = Environment()
     print(e)
-    # print('\n\n')
-    # for k, v in e:
-    #     if os.pathsep in v:
-    #         print(k + ':')
-    #         for itm in v.split(os.pathsep):
-    #             print('   ', itm)
-    #     else:
-    #         print(k + ':', v)
-    #     print()
+    print('\n\n')
+    for k, v in e:
+        if os.pathsep in v:
+            print(k + ':')
+            for itm in v.split(os.pathsep):
+                print('   ', itm)
+        else:
+            print(k + ':', v)
+        print()
