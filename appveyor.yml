@@ -49,8 +49,8 @@ environment:
       PYTHON_VERSION: "2.7.x"
       PYTHON_ARCH: "64"
 
-init:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+# init:
+#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 deploy:
   - provider: Environment

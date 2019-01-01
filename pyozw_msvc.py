@@ -531,7 +531,7 @@ class VisualCInfo(object):
             if 'BuildTools' in tools_install_path:
                 redist_path = redist_path.replace('BuildRedist', 'BuildTools')
         else:
-            redist_path = os.path.join(self.install_directory, 'Redist')
+            redist_path = os.path.join(tools_install_path, 'Redist')
 
         if not os.path.exists(redist_path):
             redist_path = os.path.split(redist_path)[0]
@@ -1160,7 +1160,7 @@ class WindowsSDKInfo(object):
         if ver <= 9.0:
             return '7.0', '6.1', '6.0a'
         elif ver == 10.0:
-            return '7.1', '7.0a'
+            return '7.1a', '7.1', '7.0a'
         elif ver == 11.0:
             return '8.0', '8.0a'
         elif ver == 12.0:
