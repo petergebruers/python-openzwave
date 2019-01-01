@@ -250,6 +250,32 @@ class VisualCInfo(object):
         if f_sharp_path and os.path.exists(f_sharp_path):
             return f_sharp_path
 
+        path = r'C:\Program Files (x86)\Microsoft SDKs\F#'
+        if os.path.exists(path):
+            versions = os.listdir(path)
+            max_ver = 0.0
+            found_version = ''
+
+            for version in versions:
+                try:
+                    ver = float(version)
+                except ValueError:
+                    continue
+
+                if ver > max_ver:
+                    max_ver = ver
+                    found_version = version
+
+            f_sharp_path = os.path.join(
+                path,
+                found_version,
+                'Framework',
+                'v' + found_version
+            )
+
+            if os.path.exists(f_sharp_path):
+                return f_sharp_path
+
     @property
     def ide_install_directory(self):
         directory = self.install_directory
@@ -319,7 +345,7 @@ class VisualCInfo(object):
 
             reg_path = (
                 _winreg.HKEY_LOCAL_MACHINE,
-                'SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7'
+                'SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7'
             )
 
             for key in _read_reg_values(reg_path):
@@ -331,9 +357,14 @@ class VisualCInfo(object):
                 path = _get_reg_value(reg_path, key)
 
                 if (
-                    os.path.exists(path) and
-                    version not in self.__installed_versions
+                    (
+                        os.path.exists(path) and
+                        version not in self.__installed_versions
+                    ) or version == 15.0
                 ):
+
+                    if version == 15.0:
+                        version = 14.0
 
                     self.__installed_versions[version] = dict(
                         base=path,
@@ -417,7 +448,11 @@ class VisualCInfo(object):
 
     @property
     def tools_version(self):
-        return os.path.split(self.tools_install_directory)[1]
+        version = os.path.split(self.tools_install_directory)[1]
+        if not version.split('.')[-1].isdigit():
+            version = str(self.version)
+
+        return version
 
     @property
     def toolset_version(self):
@@ -518,23 +553,35 @@ class VisualCInfo(object):
         else:
             vc_tools_path = self._installed_c_paths[vc_version]['base']
 
-        if 'tools' not in vc_tools_path.lower():
-            def iter_tools_path(pth):
-                files = os.listdir(pth)
-                if 'lib' in files:
-                    return pth
+        lib_path = os.path.join(vc_tools_path, 'lib')
 
-                for f in files:
-                    f = os.path.join(pth, f)
-                    if os.path.isdir(f):
-                        res = iter_tools_path(f)
+        if not os.path.exists(lib_path):
+            if 'tools' not in vc_tools_path.lower():
+                tools_path = os.path.join(vc_tools_path, 'Tools')
+                if os.path.exists(tools_path):
+                    if 'MSVC' in os.listdir(tools_path):
+                        tools_path = os.path.join(tools_path, 'MSVC')
+                        versions = os.listdir(tools_path)
+                        max_version = (0, 0, 0)
+                        found_version = ''
 
-                        if res is not None:
-                            return res
+                        for version in versions:
 
-            vc_tools_path = iter_tools_path(
-                os.path.join(vc_tools_path, 'Tools')
-            )
+                            try:
+                                ver = tuple(
+                                    int(vr) for vr in version.split('.')
+                                )
+                            except ValueError:
+                                continue
+
+                            if ver > max_version:
+                                max_version = ver
+                                found_version = version
+
+                        vc_tools_path = os.path.join(
+                            tools_path,
+                            found_version
+                        )
 
         return vc_tools_path
 
@@ -591,9 +638,12 @@ class VisualCInfo(object):
         if html_help_path and os.path.exists(html_help_path):
             return html_help_path
 
+        if os.path.exists(r'C:\Program Files (x86)\HTML Help Workshop'):
+            return r'C:\Program Files (x86)\HTML Help Workshop'
+
     @property
     def path(self):
-        tools_path = self._installed_c_paths[self.version]['root']
+        tools_path = self.tools_install_directory
         base_path = os.path.join(tools_path, 'bin')
 
         path = []
@@ -667,7 +717,7 @@ class VisualCInfo(object):
 
     @property
     def lib(self):
-        tools_path = self._installed_c_paths[self.version]['root']
+        tools_path = self.tools_install_directory
         path = os.path.join(tools_path, 'lib')
 
         if self.platform == 'x64':
@@ -693,7 +743,7 @@ class VisualCInfo(object):
 
     @property
     def lib_path(self):
-        tools_path = self._installed_c_paths[self.version]['root']
+        tools_path = self.tools_install_directory
         path = os.path.join(tools_path, 'lib')
 
         if self.platform == 'x64':
@@ -723,7 +773,7 @@ class VisualCInfo(object):
 
     @property
     def atlmfc_path(self):
-        tools_path = self._installed_c_paths[self.version]['root']
+        tools_path = self.tools_install_directory
         atlmfc_path = os.path.join(tools_path, 'ATLMFC')
         return atlmfc_path
 
@@ -735,7 +785,7 @@ class VisualCInfo(object):
 
     @property
     def include(self):
-        tools_path = self._installed_c_paths[self.version]['root']
+        tools_path = self.tools_install_directory
         include_path = os.path.join(tools_path, 'include')
         atlmfc_path = self.atlmfc_include_path
 
