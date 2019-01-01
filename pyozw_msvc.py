@@ -728,7 +728,7 @@ class VisualCInfo(object):
         ide_install_directory = self.ide_install_directory
         tools_install_directory = self.tools_install_directory
         install_directory = self.install_directory
-        
+
         if ide_install_directory:
             ide_install_directory += '\\'
 
@@ -817,10 +817,19 @@ class VisualStudioInfo(object):
         return self.c_info.version
 
     def __iter__(self):
+        install_directory = self.install_directory
+        dev_env_directory = self.dev_env_directory
+
+        if install_directory:
+            install_directory += '\\'
+
+        if dev_env_directory:
+            dev_env_directory += '\\'
+
         env = dict(
             Path=self.path,
-            VSINSTALLDIR=self.install_directory + '\\',
-            DevEnvDir=self.dev_env_directory + '\\',
+            VSINSTALLDIR=install_directory,
+            DevEnvDir=dev_env_directory,
             VisualStudioVersion=self.version
         )
 
@@ -884,20 +893,27 @@ class WindowsSDKInfo(object):
 
     @property
     def ucrt_sdk_directory(self):
-        return self.directory + '\\'
+        directory = self.directory
+        if directory:
+            return directory + '\\'
 
     @property
     def bin_path(self):
-        bin_path = os.path.join(
-            self.directory,
-            'bin'
-        )
+        directory = self.directory
+        if directory:
+            bin_path = os.path.join(
+                self.directory,
+                'bin'
+            )
 
-        return bin_path + '\\'
+            return bin_path + '\\'
 
     @property
     def lib(self):
         directory = self.directory
+        if not directory:
+            return []
+
         version = self.version
         lib = []
 
@@ -944,6 +960,9 @@ class WindowsSDKInfo(object):
     def path(self):
         path = []
         ver_bin_path = self.ver_bin_path
+
+        if not ver_bin_path:
+            return []
 
         if self.platform == 'x64':
             bin_path = os.path.join(ver_bin_path, 'x64')
@@ -992,7 +1011,11 @@ class WindowsSDKInfo(object):
 
     @property
     def include(self):
-        include_path = os.path.join(self.directory, 'include', self.version)
+        directory = self.directory
+        if not directory:
+            return []
+
+        include_path = os.path.join(directory, 'include', self.version)
         if not os.path.exists(include_path):
             include_path = os.path.split(include_path)[0]
 
@@ -1018,6 +1041,9 @@ class WindowsSDKInfo(object):
     def sdk_lib_path(self):
         directory = self.directory
         version = self.version
+
+        if not directory:
+            return []
 
         union_meta_data = os.path.join(
             directory,
@@ -1119,6 +1145,16 @@ class WindowsSDKInfo(object):
         )
 
     def __iter__(self):
+
+        ver_bin_path = self.ver_bin_path
+        directory = self.directory
+
+        if ver_bin_path:
+            ver_bin_path += '\\'
+
+        if directory:
+            directory += '\\'
+
         env = dict(
             LIB=self.lib,
             Path=self.path,
@@ -1126,11 +1162,11 @@ class WindowsSDKInfo(object):
             Include=self.include,
             UniversalCRTSdkDir=self.ucrt_sdk_directory,
             ExtensionSdkDir=self.extension_sdk_directory,
-            WindowsSdkVerBinPath=self.ver_bin_path + '\\',
+            WindowsSdkVerBinPath=ver_bin_path,
             UCRTVersion=self.ucrt_version,
             WindowsSDKLibVersion=self.lib_version,
             WindowsSDKVersion=self.sdk_version,
-            WindowsSdkDir=self.directory + '\\',
+            WindowsSdkDir=directory,
             WindowsLibPath=self.lib_path,
             WindowsSdkBinPath=self.bin_path,
             DISTUTILS_USE_SDK=1,
@@ -1459,6 +1495,10 @@ class NETInfo(object):
 
     def __iter__(self):
 
+        directory = self.directory
+        if directory:
+            directory += '\\'
+
         env = dict(
             WindowsSDK_ExecutablePath_x64=self.executable_path_x64,
             WindowsSDK_ExecutablePath_x86=self.executable_path_x86,
@@ -1467,17 +1507,26 @@ class NETInfo(object):
             LIBPATH=self.lib_path,
             Include=self.include,
             __DOTNET_PREFERRED_BITNESS=self.preferred_bitness,
-            FrameworkDir=self.directory + '\\',
+            FrameworkDir=directory,
             FrameworkVersion=self.version,
             NETFXSDKDir=self.netfx_sdk_directory,
         )
 
         env[self.add] = '1'
         if self.platform == 'x64':
-            env['FrameworkDIR64'] = self.directory_64 + '\\'
+            directory_64 = self.directory_64
+
+            if directory_64:
+                directory_64 += '\\'
+
+            env['FrameworkDIR64'] = directory_64
             env['FrameworkVersion64'] = self.version_64
         else:
-            env['FrameworkDIR32'] = self.directory_32 + '\\'
+            directory_32 = self.directory_32
+            if directory_32:
+                directory_32 += '\\'
+
+            env['FrameworkDIR32'] = directory_32
             env['FrameworkVersion32'] = self.version_32
 
         framework = env['FrameworkVersion'][1:].split('.')[:2]
