@@ -713,7 +713,11 @@ class VisualCInfo(object):
 
     @property
     def atlmfc_lib_path(self):
-        atlmfc = os.path.join(self.atlmfc_path, 'lib')
+        atlmfc_path = self.atlmfc_path
+        if not atlmfc_path:
+            return
+
+        atlmfc = os.path.join(atlmfc_path, 'lib')
         if self.platform == 'x64':
             atlmfc_path = os.path.join(atlmfc, 'x64')
             if not os.path.exists(atlmfc_path):
@@ -786,13 +790,17 @@ class VisualCInfo(object):
     def atlmfc_path(self):
         tools_path = self.tools_install_directory
         atlmfc_path = os.path.join(tools_path, 'ATLMFC')
-        return atlmfc_path
+
+        if os.path.exists(atlmfc_path):
+            return atlmfc_path
 
     @property
     def atlmfc_include_path(self):
-        atlmfc_path = os.path.join(self.atlmfc_path, 'include')
-        if os.path.exists(atlmfc_path):
-            return atlmfc_path
+        atlmfc_path = self.atlmfc_path
+        if atlmfc_path:
+            atlmfc_path = os.path.join(atlmfc_path, 'include')
+            if os.path.exists(atlmfc_path):
+                return atlmfc_path
 
     @property
     def include(self):
@@ -1013,8 +1021,10 @@ class WindowsSDKInfo(object):
             )
 
         if os.path.exists(base_lib):
-
             if self.platform == 'x64':
+                if os.path.exists(os.path.join(base_lib, 'x64')):
+                    lib += [os.path.join(base_lib, 'x64')]
+
                 ucrt = os.path.join(base_lib, 'ucrt', self.platform)
                 um = os.path.join(base_lib, 'um', self.platform)
                 if not os.path.exists(ucrt):
@@ -1024,6 +1034,7 @@ class WindowsSDKInfo(object):
                     um = os.path.join(base_lib, 'um', 'amd64')
 
             else:
+                lib += [base_lib]
                 ucrt = os.path.join(base_lib, 'ucrt', self.platform)
                 um = os.path.join(base_lib, 'um', self.platform)
 
@@ -1038,6 +1049,7 @@ class WindowsSDKInfo(object):
 
             if os.path.exists(um):
                 lib += [um]
+
         return lib
 
     @property

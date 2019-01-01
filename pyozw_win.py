@@ -246,6 +246,7 @@ class Library(pyozw_common.Library):
             '/wd4101',
             '/wd4267',
             '/wd4996',
+            '/wd4351'
 
         ]
 
