@@ -364,8 +364,10 @@ class VisualCInfo(object):
                 ):
 
                     if version == 15.0:
-                        path = os.path.join(path, 'VC')
                         version = 14.0
+
+                    if not os.path.split(path)[1] == 'VC':
+                        path = os.path.join(path, 'VC')
 
                     self.__installed_versions[version] = dict(
                         base=path,
@@ -557,13 +559,10 @@ class VisualCInfo(object):
         else:
             vc_tools_path = self._installed_c_paths[vc_version]['base']
 
-        print(vc_tools_path)
-
         lib_path = os.path.join(vc_tools_path, 'lib')
 
         if not os.path.exists(lib_path):
             tools_path = os.path.join(vc_tools_path, 'Tools', 'MSVC')
-            print(tools_path)
 
             if os.path.exists(tools_path):
                 versions = os.listdir(tools_path)
@@ -571,7 +570,6 @@ class VisualCInfo(object):
                 found_version = ''
 
                 for version in versions:
-                    print(version)
                     try:
                         ver = tuple(
                             int(vr) for vr in version.split('.')
