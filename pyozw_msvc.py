@@ -725,11 +725,24 @@ class VisualCInfo(object):
         return include
 
     def __iter__(self):
+        ide_install_directory = self.ide_install_directory
+        tools_install_directory = self.tools_install_directory
+        install_directory = self.install_directory
+        
+        if ide_install_directory:
+            ide_install_directory += '\\'
+
+        if tools_install_directory:
+            tools_install_directory += '\\'
+
+        if install_directory:
+            install_directory += '\\'
+
         env = dict(
-            VCIDEInstallDir=self.ide_install_directory + '\\',
+            VCIDEInstallDir=ide_install_directory,
             VCToolsVersion=self.tools_version,
-            VCToolsInstallDir=self.tools_install_directory + '\\',
-            VCINSTALLDIR=self.install_directory + '\\',
+            VCToolsInstallDir=tools_install_directory,
+            VCINSTALLDIR=install_directory,
             VCToolsRedistDir=self.tools_redist_directory,
             Path=self.path,
             LIB=self.lib,
