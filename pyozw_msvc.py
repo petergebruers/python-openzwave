@@ -1000,7 +1000,7 @@ class WindowsSDKInfo(object):
             for version in os.listdir(type_script_path):
                 try:
                     version = float(version)
-                except TypeError:
+                except ValueError:
                     continue
                 max_ver = max(max_ver, version)
 
