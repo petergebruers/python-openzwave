@@ -1,4 +1,5 @@
 environment:
+  APPVEYOR_RDP_PASSWORD: buildrdppassword
   PYPI_USER:
     secure: yna6KiH2GE3Ka1G5a3TlUQ==
   PYPI_PASSWORD:
@@ -48,6 +49,9 @@ environment:
       PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7.x"
       PYTHON_ARCH: "64"
+
+init:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 deploy:
   - provider: Environment
