@@ -364,6 +364,7 @@ class VisualCInfo(object):
                 ):
 
                     if version == 15.0:
+                        path = os.path.join(path, 'VC')
                         version = 14.0
 
                     self.__installed_versions[version] = dict(
