@@ -1519,6 +1519,9 @@ class NETInfo(object):
     @property
     def executable_path_x86(self):
         tools_directory = self.net_fx_tools_directory
+        if not tools_directory:
+            return
+        
         if 'NETFX' in tools_directory:
             if 'x64' in tools_directory:
                 return (
