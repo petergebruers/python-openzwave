@@ -530,7 +530,9 @@ class VisualCInfo(object):
                         if res is not None:
                             return res
 
-            vc_tools_path = iter_tools_path(vc_tools_path)
+            vc_tools_path = iter_tools_path(
+                os.path.join(vc_tools_path, 'Tools')
+            )
 
         return vc_tools_path
 
@@ -577,10 +579,12 @@ class VisualCInfo(object):
     @property
     def html_help_path(self):
 
-        html_help_path = _get_reg_value(
-            'Windows\\CurrentVersion\\App Paths\\hhw.exe',
-            'Path'
+        reg_path = (
+            _winreg.HKEY_LOCAL_MACHINE,
+            'SOFTWARE\\Wow6432Node\\Microsoft\Windows\\CurrentVersion\\App Paths\\hhw.exe'
         )
+
+        html_help_path = _get_reg_value(reg_path, 'Path')
         if html_help_path and os.path.exists(html_help_path):
             return html_help_path
 
