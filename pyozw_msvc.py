@@ -527,7 +527,10 @@ class VisualCInfo(object):
             max_ver = (0, 0, 0)
             for f in os.listdir(redist_path):
                 if os.path.isdir(os.path.join(redist_path, f)):
-                    ver = tuple(int(ver) for ver in f.split('.'))
+                    try:
+                        ver = tuple(int(ver) for ver in f.split('.'))
+                    except ValueError:
+                        continue
                     if ver > max_ver:
                         max_ver = ver
             if max_ver != (0, 0, 0):
