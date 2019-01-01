@@ -1,5 +1,5 @@
 environment:
-  APPVEYOR_RDP_PASSWORD: buildrdppassword
+  APPVEYOR_RDP_PASSWORD: yna6KiH2GE3Ka1G5a3TlUQ
   PYPI_USER:
     secure: yna6KiH2GE3Ka1G5a3TlUQ==
   PYPI_PASSWORD:
