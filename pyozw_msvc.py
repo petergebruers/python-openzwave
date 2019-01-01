@@ -314,7 +314,35 @@ class VisualCInfo(object):
                     base=base_path,
                     root=vc_root
                 )
-        print(self.__installed_versions)
+
+            reg_path = (
+                _winreg.HKEY_LOCAL_MACHINE,
+                'SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7'
+            )
+
+            for key in _read_reg_values(reg_path):
+                try:
+                    version = float(key)
+                except ValueError:
+                    continue
+
+                path = _get_reg_value(reg_path, key)
+
+                if (
+                    os.path.exists(path) and
+                    version not in self.__installed_versions
+                ):
+
+                    self.__installed_versions[version] = dict(
+                        base=path,
+                        root=path
+                    )
+                    self.__installed_versions[key] = dict(
+                        base=path,
+                        root=path
+                    )
+
+            print(self.__installed_versions)
         return self.__installed_versions
 
     @property
