@@ -19,15 +19,15 @@ environment:
     # because of the code incompatibility with python-openzwave and the MSVC 9
     # compiler we are going to compile with MSVC 10 instead
 
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      PYTHON: "C:\\Python36"
-      PYTHON_VERSION: "3.6.x"
-      PYTHON_ARCH: "32"
-
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      PYTHON: "C:\\Python36-x64"
-      PYTHON_VERSION: "3.6.x"
-      PYTHON_ARCH: "64"
+#    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+#      PYTHON: "C:\\Python36"
+#      PYTHON_VERSION: "3.6.x"
+#      PYTHON_ARCH: "32"
+#
+#    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+#      PYTHON: "C:\\Python36-x64"
+#      PYTHON_VERSION: "3.6.x"
+#      PYTHON_ARCH: "64"
 
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
       PYTHON: "C:\\Python34"

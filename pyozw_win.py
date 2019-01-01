@@ -101,9 +101,6 @@ class Extension(pyozw_common.Extension):
             '/Oy',
             # Generates intrinsic functions.
             '/Oi',
-            # Forces writes to the program database (PDB) file to be
-            # serialized through MSPDBSRV.EXE.
-            '/FS',
             # Specify floating-point behavior.
             '/fp:precise',
             # Specifies standard behavior
@@ -120,6 +117,13 @@ class Extension(pyozw_common.Extension):
             '/wd4005',
             '/wd4800',
         ]
+
+        if environment.visual_c.version > 10.0:
+            # Forces writes to the program database (PDB) file to be
+            # serialized through MSPDBSRV.EXE.
+            # this compiler flag is not valid on
+            # Visual C++ version 10.0 and older
+            extra_compile_args += ['/FS']
 
         if pyozw_common.DEBUG_BUILD:
             define_macros += [('_DEBUG', 1)]
