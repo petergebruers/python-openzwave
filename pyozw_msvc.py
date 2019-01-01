@@ -516,9 +516,7 @@ class VisualCInfo(object):
         else:
             vc_tools_path = self._installed_c_paths[vc_version]['base']
 
-        lib_path = os.path.join(vc_tools_path, 'lib')
-        if not os.path.exists(lib_path):
-
+        if 'tools' not in vc_tools_path.lower():
             def iter_tools_path(pth):
                 files = os.listdir(pth)
                 if 'lib' in files:
