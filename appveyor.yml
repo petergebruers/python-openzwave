@@ -19,25 +19,25 @@ environment:
     # because of the code incompatibility with python-openzwave and the MSVC 9
     # compiler we are going to compile with MSVC 10 instead
 
-#    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-#      PYTHON: "C:\\Python36"
-#      PYTHON_VERSION: "3.6.x"
-#      PYTHON_ARCH: "32"
-#
-#    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-#      PYTHON: "C:\\Python36-x64"
-#      PYTHON_VERSION: "3.6.x"
-#      PYTHON_ARCH: "64"
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      PYTHON: "C:\\Python36"
+      PYTHON_VERSION: "3.6.x"
+      PYTHON_ARCH: "32"
 
-#    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
-#      PYTHON: "C:\\Python34"
-#      PYTHON_VERSION: "3.4.x"
-#      PYTHON_ARCH: "32"
-#
-#    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
-#      PYTHON: "C:\\Python34-x64"
-#      PYTHON_VERSION: "3.4.x"
-#      PYTHON_ARCH: "64"
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      PYTHON: "C:\\Python36-x64"
+      PYTHON_VERSION: "3.6.x"
+      PYTHON_ARCH: "64"
+
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      PYTHON: "C:\\Python34"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "32"
+
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      PYTHON: "C:\\Python34-x64"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "64"
 
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
       PYTHON: "C:\\Python27"
@@ -48,6 +48,18 @@ environment:
       PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7.x"
       PYTHON_ARCH: "64"
+
+# This is so you can login via RDP to the appveyor VM. I needed
+# to use this to isolate some issue with the build process for windows.
+# appveyor was nice enough to not transfer over all of the registry keys for
+# the build tools they have installed into the VM. So I had to locate ones
+# that were available that would provide data that would identify some of the
+# components needed to build openzwave and libopenzave on windows.
+
+# when you uncomment the lines below. after the build process has completed
+# failed or not the program will stop and not exit. It will display
+# ip:host, username (always appveyor) and a random password. This is what is
+# needed to log into the VM
 
 # on_finish:
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
