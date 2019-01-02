@@ -75,6 +75,9 @@ logger.addHandler(NullHandler())
 
 from pkg_resources import get_distribution, DistributionNotFound
 
+
+PY3 = sys.version_info[0] > 2
+
 cdef extern from 'pyversion.h':
     string PY_LIB_VERSION_STRING
     string PY_LIB_FLAVOR_STRING
@@ -692,6 +695,13 @@ cdef class PyOptions:
         if os.path.exists(config_path):
             if not os.path.exists(os.path.join(config_path, "zwcfg.xsd")):
                 raise LibZWaveException("Can't retrieve zwcfg.xsd from %s" % config_path)
+
+            if isinstance(config_path, str):
+                if PY3:
+                    config_path = config_path.encode('utf-8')
+                else:
+                    config_path = config_path.decode('utf-8')
+
             self._config_path = config_path
         else:
             raise LibZWaveException("Can't find config directory %s" % config_path)
@@ -699,6 +709,13 @@ cdef class PyOptions:
             user_path = "."
         if os.path.exists(user_path):
             if os.access(user_path, os.W_OK)==True and os.access(user_path, os.R_OK)==True:
+
+                if isinstance(user_path, str):
+                    if PY3:
+                        user_path = user_path.encode('utf-8')
+                    else:
+                        user_path = user_path.decode('utf-8')
+
                 self._user_path = user_path
             else:
                 raise LibZWaveException("Can't write in user directory %s" % user_path)
@@ -706,6 +723,14 @@ cdef class PyOptions:
             raise LibZWaveException("Can't find user directory %s" % user_path)
         if cmd_line is None:
             cmd_line=""
+
+        if isinstance(cmd_line, str):
+            if PY3:
+                cmd_line = cmd_line.encode('utf-8')
+            else:
+                cmd_line = cmd_line.decode('utf-8')
+
+
         self._cmd_line = cmd_line
         self.create(self._config_path, self._user_path, self._cmd_line)
 

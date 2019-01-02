@@ -24,6 +24,7 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
 import os
+import sys
 from platform import system as platform_system
 
 import libopenzwave
@@ -42,6 +43,19 @@ except ImportError:
             pass
 logger = logging.getLogger('openzwave')
 logger.addHandler(NullHandler())
+
+PY3 = sys.version_info[0] > 2
+
+
+def convert_string(s):
+    if isinstance(s, str):
+        if PY3:
+            s = s.encode('utf-8')
+        else:
+            s = s.decode('utf-8')
+
+    return s
+
 
 class ZWaveOption(libopenzwave.PyOptions):
     """
@@ -89,7 +103,7 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type logfile: str
 
         """
-        return self.addOptionString("LogFileName", logfile, False)
+        return self.addOptionString("LogFileName", convert_string(logfile), False)
 
     def set_logging(self, status):
         """
@@ -205,7 +219,7 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type commandClass: str
 
         """
-        return self.addOptionString("Exclude", commandClass, True)
+        return self.addOptionString("Exclude", convert_string(commandClass), True)
 
     def set_include(self, commandClass):
         """
@@ -215,7 +229,7 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type commandClass: str
 
         """
-        return self.addOptionString("Include", commandClass, True)
+        return self.addOptionString("Include", convert_string(commandClass), True)
 
     def set_notify_transactions(self, status):
         """
@@ -235,7 +249,7 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type port: str
 
         """
-        return self.addOptionString("Interface", port, True)
+        return self.addOptionString("Interface", convert_string(port), True)
 
     def set_save_configuration(self, status):
         """
@@ -295,7 +309,7 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type strategy: str
 
         """
-        return self.addOptionString("SecurityStrategy", strategy, False)
+        return self.addOptionString("SecurityStrategy", convert_string(strategy), False)
 
     def set_custom_secured_cc(self, custom_cc='0x62,0x4c,0x63'):
         """
@@ -305,8 +319,7 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type custom_cc: str
 
         """
-        return self.addOptionString("CustomSecuredCC", custom_cc, False)
-
+        return self.addOptionString("CustomSecuredCC", convert_string(custom_cc), False)
 
     @property
     def device(self):
