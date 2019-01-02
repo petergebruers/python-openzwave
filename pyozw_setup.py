@@ -1030,9 +1030,10 @@ class build_openzwave(setuptools.Command):
         current_template.get_openzwave()
 
         if sys.platform.startswith('win'):
-            self.run_command('build_clib')
             if 'bdist_wheel' not in sys.argv:
                 current_template.clean()
+
+            self.run_command('build_clib')
         else:
             current_template.clean()
 
