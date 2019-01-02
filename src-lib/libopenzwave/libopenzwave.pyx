@@ -666,8 +666,8 @@ def configPath():
 
 def  convert_string(s):
     if PY3:
-        if not isinstance(s, bytes):
-            s = s.encode('utf-8')
+        if isinstance(s, bytes):
+            s = s.decode('utf-8')
     else:
         if not isinstance(s, unicode):
             s = s.decode('utf-8')
@@ -745,7 +745,7 @@ cdef class PyOptions:
         a = convert_string(a)
         b = convert_string(b)
         c = convert_string(c)
-        
+
         self.options = CreateOptions(
             str_to_cppstr(a), str_to_cppstr(b), str_to_cppstr(c))
         return True
