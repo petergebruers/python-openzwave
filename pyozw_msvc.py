@@ -736,7 +736,7 @@ class VisualCInfo(object):
         if self.platform == 'x64':
             lib_path = os.path.join(path, 'x64')
             if not os.path.exists(lib_path):
-                lib_path = os.path.join(lib_path, 'amd64')
+                lib_path = os.path.join(path, 'amd64')
 
         else:
             lib_path = os.path.join(path, 'x86')
@@ -783,7 +783,9 @@ class VisualCInfo(object):
             lib_path += [references_path]
 
         return lib_path
-
+# LIB:
+    #     C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\lib
+    #     C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\lib
     @property
     def atlmfc_path(self):
         tools_path = self.tools_install_directory

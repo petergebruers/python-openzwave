@@ -1028,10 +1028,13 @@ class build_openzwave(setuptools.Command):
     def run(self):
         current_template.check_minimal_config()
         current_template.get_openzwave()
-        current_template.clean()
 
         if sys.platform.startswith('win'):
             self.run_command('build_clib')
+            if 'bdist_wheel' not in sys.argv:
+                current_template.clean()
+        else:
+            current_template.clean()
 
         current_template.build()
         if current_template.install_openzwave_so:
