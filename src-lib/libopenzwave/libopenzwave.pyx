@@ -871,9 +871,12 @@ cdef class PyOptions:
         :see: addOptionBool_, addOptionInt_, addOptionString_
 
         """
+        name = convert_string(name)
+
         if name not in PyOptionList:
             return False
         if PyOptionList[name]['type'] == "String":
+            value = convert_string(value)
             return self.addOptionString(name, value)
         elif PyOptionList[name]['type'] == "Bool":
             return self.addOptionBool(name, value)
@@ -895,6 +898,7 @@ cdef class PyOptions:
         :see: getOptionAsBool_, getOptionAsInt_, getOptionAsString_
 
         """
+        name = convert_string(name)
         if name not in PyOptionList:
             return None
         if PyOptionList[name]['type'] == "String":
@@ -919,6 +923,7 @@ cdef class PyOptions:
         :see: getOption_, getOptionAsInt_, getOptionAsString_
 
         """
+        name = convert_string(name)
         cdef bool type_bool
         cret = self.options.GetOptionAsBool(str_to_cppstr(name), &type_bool)
         ret = type_bool if cret==True else None
@@ -938,6 +943,7 @@ cdef class PyOptions:
         :see: getOption_, getOptionAsBool_, getOptionAsString_
 
         """
+        name = convert_string(name)
         cdef int32_t type_int
         cret = self.options.GetOptionAsInt(str_to_cppstr(name), &type_int)
         ret = type_int if cret==True else None
@@ -957,6 +963,7 @@ cdef class PyOptions:
         :see: getOption_, getOptionAsBool_, getOptionAsInt_
 
         """
+        name = convert_string(name)
         cdef string type_string
         cret = self.options.GetOptionAsString(str_to_cppstr(name), &type_string)
         ret = cstr_to_str(type_string.c_str()) if cret==True else None
