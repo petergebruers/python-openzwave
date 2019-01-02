@@ -46,7 +46,7 @@ def imports(args):
         if sys.version_info[0] > 2:
             options = libopenzwave.PyOptions(user_path=".", cmd_line="--logging false")
         else:
-            options = libopenzwave.PyOptions(user_path=u".", cmd_line="--logging false")
+            options = libopenzwave.PyOptions(user_path=u".", cmd_line=u"--logging false")
         options.lock()
         time.sleep(0.5)
         print("Try to get manager")
@@ -73,7 +73,11 @@ def imports(args):
     elif args.output == 'raw':
         import libopenzwave
         from libopenzwave import PyLogLevels
-        options = libopenzwave.PyOptions(user_path=".", cmd_line="--logging false")
+        if sys.version_info[0] > 2:
+            options = libopenzwave.PyOptions(user_path=".", cmd_line="--logging false")
+        else:
+            options = libopenzwave.PyOptions(user_path=u".", cmd_line=u"--logging false")
+
         options.lock()
         time.sleep(0.5)
         manager = libopenzwave.PyManager()
@@ -114,7 +118,20 @@ def init_device(args):
         print("Intialize device {0}".format(args.device))
         import libopenzwave
         print("Try to get options")
-        options = libopenzwave.PyOptions(config_path=args.config_path, user_path=args.user_path, cmd_line="--logging true")
+
+        if sys.version_info[0] > 2:
+            options = libopenzwave.PyOptions(
+                config_path=args.config_path,
+                user_path=args.user_path,
+                cmd_line="--logging true"
+            )
+        else:
+            options = libopenzwave.PyOptions(
+                config_path=args.config_path.decode('utf-8'),
+                user_path=args.user_path.decode('utf-8'),
+                cmd_line=u"--logging true"
+            )
+
         options.lock()
         time.sleep(1.0)
         print("Try to get manager")
@@ -156,7 +173,20 @@ def init_device(args):
         print("{0:08x}".format(home_id))
     elif args.output == 'raw':
         import libopenzwave
-        options = libopenzwave.PyOptions(config_path=args.config_path, user_path=args.user_path, cmd_line="--logging false")
+
+        if sys.version_info[0] > 2:
+            options = libopenzwave.PyOptions(
+                config_path=args.config_path,
+                user_path=args.user_path,
+                cmd_line="--logging false"
+            )
+        else:
+            options = libopenzwave.PyOptions(
+                config_path=args.config_path.decode('utf-8'),
+                user_path=args.user_path.decode('utf-8'),
+                cmd_line=u"--logging false"
+            )
+
         options.lock()
         time.sleep(1.0)
         manager = libopenzwave.PyManager()
@@ -197,6 +227,7 @@ def list_nodes(args):
     #Define some manager options
     print("-------------------------------------------------------------------------------")
     print("Define options for device {0}".format(args.device))
+
     options = ZWaveOption(device=args.device, config_path=args.config_path, user_path=args.user_path)
     options.set_log_file("OZW_Log.log")
     options.set_append_log_file(False)
