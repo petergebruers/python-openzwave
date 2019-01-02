@@ -180,6 +180,9 @@ class Extension(pyozw_common.Extension):
             extra_compile_args=extra_compile_args
         )
 
+        if sys.version_info[0] == 2:
+            self.undef_macros = ['UNICODE']
+
 
 class Library(pyozw_common.Library):
 

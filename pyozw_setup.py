@@ -164,6 +164,7 @@ class Template(object):
             ctx['define_macros'] = extension.define_macros
             ctx['libraries'] = extension.libraries
             ctx['extra_compile_args'] = extension.extra_compile_args
+            ctx['undef_macros'] = extension.undef_macros
 
         elif sys.platform.startswith("cygwin"):
             if static:
