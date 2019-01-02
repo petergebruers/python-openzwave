@@ -387,6 +387,8 @@ class build_clib(distutils.command.build_clib.build_clib):
                         else:
                             sys.stdout.write(line + '\n')
 
+                        sys.stdout.flush()
+
                 for line in iter(p.stderr.readline, dummy_return):
                     line = line.strip()
                     if line:
@@ -395,9 +397,13 @@ class build_clib(distutils.command.build_clib.build_clib):
                         else:
                             sys.stderr.write(line + '\n')
 
+                        sys.stderr.flush()
+
         if not p.stdout.closed:
             p.stdout.close()
 
         if not p.stderr.closed:
             p.stderr.close()
 
+        sys.stdout.flush()
+        sys.stderr.flush()

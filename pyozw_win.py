@@ -116,6 +116,7 @@ class Extension(pyozw_common.Extension):
             '/wd4005',
             '/wd4800',
             '/wd4351',
+            '/wd4273'
         ]
 
         if environment.visual_c.version > 10.0:

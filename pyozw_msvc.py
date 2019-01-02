@@ -484,10 +484,11 @@ class VisualCInfo(object):
     @property
     def msvc_dll_version(self):
         msvc_dll_path = self.msvc_dll_path
-        for f in os.listdir(msvc_dll_path):
-            if f.endswith('dll'):
-                version = _get_file_version(os.path.join(msvc_dll_path, f))
-                return '.'.join(str(ver) for ver in version)
+        if msvc_dll_path:
+            for f in os.listdir(msvc_dll_path):
+                if f.endswith('dll'):
+                    version = _get_file_version(os.path.join(msvc_dll_path, f))
+                    return '.'.join(str(ver) for ver in version)
 
     @property
     def msvc_dll_path(self):
