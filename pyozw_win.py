@@ -296,6 +296,9 @@ class Library(pyozw_common.Library):
         ):
             return
 
+        if sys.version_info[0] == 2:
+            command_class.compiler.undefine_macro('UNICODE')
+
         objects = []
         thread_event = threading.Event()
 
