@@ -663,6 +663,17 @@ def configPath():
                 return os.path.join(libopenzwave_location, PY_OZWAVE_CONFIG_DIRECTORY)
     return None
 
+
+def  convert_string(s):
+    if PY3:
+        if not isinstance(s, bytes):
+            s = s.encode('utf-8')
+    else:
+        if not isinstance(s, unicode):
+            s = s.decode('utf-8')
+    return s
+
+
 cdef class PyOptions:
     """
     Manage options manager
@@ -696,27 +707,14 @@ cdef class PyOptions:
             if not os.path.exists(os.path.join(config_path, "zwcfg.xsd")):
                 raise LibZWaveException("Can't retrieve zwcfg.xsd from %s" % config_path)
 
-            if isinstance(config_path, str):
-                if PY3:
-                    config_path = config_path.encode('utf-8')
-                else:
-                    config_path = config_path.decode('utf-8')
-
-            self._config_path = config_path
+            self._config_path = convert_string(config_path)
         else:
             raise LibZWaveException("Can't find config directory %s" % config_path)
         if user_path is None:
             user_path = "."
         if os.path.exists(user_path):
             if os.access(user_path, os.W_OK)==True and os.access(user_path, os.R_OK)==True:
-
-                if isinstance(user_path, str):
-                    if PY3:
-                        user_path = user_path.encode('utf-8')
-                    else:
-                        user_path = user_path.decode('utf-8')
-
-                self._user_path = user_path
+                self._user_path = convert_string(user_path)
             else:
                 raise LibZWaveException("Can't write in user directory %s" % user_path)
         else:
@@ -724,14 +722,7 @@ cdef class PyOptions:
         if cmd_line is None:
             cmd_line=""
 
-        if isinstance(cmd_line, str):
-            if PY3:
-                cmd_line = cmd_line.encode('utf-8')
-            else:
-                cmd_line = cmd_line.decode('utf-8')
-
-
-        self._cmd_line = cmd_line
+        self._cmd_line = convert_string(cmd_line)
         self.create(self._config_path, self._user_path, self._cmd_line)
 
 

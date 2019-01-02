@@ -180,9 +180,6 @@ class Extension(pyozw_common.Extension):
             extra_compile_args=extra_compile_args
         )
 
-        if sys.version_info[0] == 2:
-            self.undef_macros = ['UNICODE']
-
 
 class Library(pyozw_common.Library):
 
@@ -298,9 +295,6 @@ class Library(pyozw_common.Library):
             os.path.join(self.build_path + '\\lib_build', 'OpenZWave.lib')
         ):
             return
-
-        if sys.version_info[0] == 2:
-            command_class.compiler.undefine_macro('UNICODE')
 
         objects = []
         thread_event = threading.Event()
