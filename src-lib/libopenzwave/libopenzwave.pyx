@@ -726,7 +726,7 @@ cdef class PyOptions:
         self.create(self._config_path, self._user_path, self._cmd_line)
 
 
-    def create(self, str a, str b, str c):
+    def create(self, a, b, c):
         """
         .. _createoptions:
 
@@ -742,6 +742,10 @@ cdef class PyOptions:
         :see: destroyoptions_
 
         """
+        a = convert_string(a)
+        b = convert_string(b)
+        c = convert_string(c)
+        
         self.options = CreateOptions(
             str_to_cppstr(a), str_to_cppstr(b), str_to_cppstr(c))
         return True
