@@ -73,7 +73,18 @@ class TestNetworkApi(TestPyZWave):
 
     def test_000_api_network(self):
         self.touchFile('ttyUSBO_fake')
-        self.options = ZWaveOption(device='ttyUSBO_fake', user_path=self.userpath)
+
+        if sys.version_info[0] >2:
+            self.options = ZWaveOption(
+                device='ttyUSBO_fake',
+                user_path=self.userpath
+            )
+        else:
+            self.options = ZWaveOption(
+                device=u'ttyUSBO_fake',
+                user_path=self.userpath.decode('utf-8')
+            )
+
         self.options.set_log_file("OZW_Log.log")
         self.options.set_append_log_file(False)
         self.options.set_console_output(False)
@@ -95,15 +106,36 @@ class TestNetworkApi(TestPyZWave):
     def test_905_network_singleton(self):
         self.skipPython3()
         self.touchFile('ttyUSBO_fake')
-        self.options = ZWaveOptionSingleton(device='ttyUSBO_fake', user_path=self.userpath)
+        if sys.version_info[0] > 2:
+            self.options = ZWaveOptionSingleton(
+                device='ttyUSBO_fake',
+                user_path=self.userpath
+            )
+        else:
+            self.options = ZWaveOptionSingleton(
+                device=u'ttyUSBO_fake',
+                user_path=self.userpath.decode('utf-8')
+            )
+
         self.options.set_log_file("OZW_Log.log")
         self.options.set_append_log_file(False)
         self.options.set_console_output(False)
         self.options.set_save_log_level("Debug")
         self.options.set_logging(True)
         self.options.lock()
-        options2 = ZWaveOptionSingleton(device='ttyUSBO_fake', user_path=self.userpath)
+
+        if sys.version_info[0] > 2:
+            options2 = ZWaveOptionSingleton(
+                device='ttyUSBO_fake',
+                user_path=self.userpath
+            )
+        else:
+            options2 = ZWaveOptionSingleton(
+                device=u'ttyUSBO_fake',
+                user_path=self.userpath.decode('utf-8')
+            )
         self.assertIs(self.options, options2)
+
         self.network = ZWaveNetworkSingleton(self.options, autostart=False)
         network2 = ZWaveNetworkSingleton(self.options, autostart=False)
         self.assertIs(self.network, network2)
