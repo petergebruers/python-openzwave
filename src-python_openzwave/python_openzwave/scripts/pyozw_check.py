@@ -26,6 +26,7 @@ h = logging.NullHandler()
 logger = logging.getLogger(__name__).addHandler(h)
 import time
 import argparse
+import sys
 
 network_state = None
 home_id = None
@@ -42,7 +43,10 @@ def imports(args):
         print("Try to import libopenzwave.PyLogLevels")
         from libopenzwave import PyLogLevels
         print("Try to get options")
-        options = libopenzwave.PyOptions(user_path=".", cmd_line="--logging false")
+        if sys.version_info[0] > 2:
+            options = libopenzwave.PyOptions(user_path=".", cmd_line="--logging false")
+        else:
+            options = libopenzwave.PyOptions(user_path=u".", cmd_line="--logging false")
         options.lock()
         time.sleep(0.5)
         print("Try to get manager")
@@ -65,7 +69,7 @@ def imports(args):
         time.sleep(0.5)
         print("Try to import openzwave (API)")
         import openzwave
-        
+
     elif args.output == 'raw':
         import libopenzwave
         from libopenzwave import PyLogLevels
@@ -96,7 +100,7 @@ def zwcallback(zwargs):
     if notify_type == "DriverReady":
         global home_id
         home_id = zwargs['homeId']
-    
+
     #~ print("Received {0} : {1}".format(notify_type,libopenzwave.PyNotifications[notify_type].doc))
     if args.output == 'txt':
         print("Received {0}".format(notify_type))
@@ -255,7 +259,7 @@ def list_nodes(args):
     print("Stop network")
     network.stop()
     print("Exit")
-                
+
 def pyozw_parser():
     parser = argparse.ArgumentParser(description='Run python_openzwave basics checks.')
     parser.add_argument('-o', '--output', action='store', help='The format (txt, raw, ...)', choices=['txt', 'raw'], default='txt')
@@ -278,7 +282,7 @@ def main():
         list_nodes(args)
     elif args.imports:
         imports(args)
-        
+
 if __name__ == '__main__':
     main()
 
