@@ -37,6 +37,7 @@ def _compare_versions(v1, v2):
     The implementation is taken from the top answer at
     http://stackoverflow.com/a/1714190/997768.
     """
+
     def normalize(v):
         return [int(x) for x in re.sub(r'(\.0+)*$', '', v).split(".")]
 
@@ -67,8 +68,11 @@ def _convert_error(func):
 def _query(package, option):
     pkg_config_exe = os.environ.get('PKG_CONFIG', None) or 'pkg-config'
     cmd = '{0} {1} {2}'.format(pkg_config_exe, option, package).split()
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
+    proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
     out, err = proc.communicate()
 
     return out.rstrip().decode('utf-8')
@@ -108,6 +112,7 @@ def cflags(package):
 def libs(package):
     """Return the LDFLAGS string returned by pkg-config."""
     return _query(package, '--libs')
+
 
 def libs_only_l(package):
     """Return the LDFLAGS string returned by pkg-config."""
@@ -178,6 +183,7 @@ def parse(packages):
 
     If ``pkg-config`` not on path, raises ``EnvironmentError``.
     """
+
     def parse_package(package):
         result = collections.defaultdict(list)
 
@@ -213,5 +219,7 @@ def parse(packages):
 
 def list_all():
     """Return a list of all packages found by pkg-config."""
-    packages = [line.split()[0] for line in _query('', '--list-all').split('\n')]
+    packages = [
+        line.split()[0] for line in _query('', '--list-all').split('\n')
+    ]
     return packages
