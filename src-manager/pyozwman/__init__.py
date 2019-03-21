@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 __license__ = """
 
-This file is part of **python-openzwave** project https://github.com/OpenZWave/python-openzwave.
+This file is part of **python-openzwave** 
+project https://github.com/OpenZWave/python-openzwave.
 
 License : GPL(v3)
 
@@ -23,7 +24,7 @@ __email__ = 'bibi21000@gmail.com'
 
 try:
     __import__('pkg_resources').declare_namespace("pyozwman")
-except:
+except ImportError:
     # bootstrapping
     pass
 
