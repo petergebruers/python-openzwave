@@ -43,17 +43,8 @@ from openzwave.option import ZWaveOption
 from openzwave.scene import ZWaveScene
 from openzwave.singleton import Singleton
 
-# Set default logging handler to avoid "No handler found" warnings.
 import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        """NullHandler logger for python 2.6"""
-        def emit(self, record):
-            pass
-logger = logging.getLogger('openzwave')
-logger.addHandler(NullHandler())
+logger = logging.getLogger(__name__)
 
 try:
     import sqlite3 as lite

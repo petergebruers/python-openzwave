@@ -41,17 +41,8 @@ import time
 from openzwave.object import ZWaveObject, deprecated
 from libopenzwave import PyStatDriver, PyControllerState
 
-# Set default logging handler to avoid "No handler found" warnings.
 import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        """NullHandler logger for python 2.6"""
-        def emit(self, record):
-            pass
-logger = logging.getLogger('openzwave')
-logger.addHandler(NullHandler())
+logger = logging.getLogger(__name__)
 
 class ZWaveController(ZWaveObject):
     '''
@@ -367,7 +358,7 @@ class ZWaveController(ZWaveObject):
         tversion = "Original %s" % self.library_version
         fversion = os.path.join(self.library_config_path, 'pyozw_config.version')
         if os.path.isfile(fversion):
-            with open(fversion, 'r') as f: 
+            with open(fversion, 'r') as f:
                 val = f.read()
             tversion = "Git %s" % val
         return tversion
@@ -1378,7 +1369,7 @@ class ZWaveController(ZWaveObject):
                 shutil.rmtree(dest)
             except Exception:
                 pass
-                
+
         if os.path.isdir(self.library_config_path):
             #Try to remove old config
             try:
@@ -1392,8 +1383,8 @@ class ZWaveController(ZWaveObject):
             logger.exception("Can't copy to %s", self.library_config_path)
 
         try:
-            with open(os.path.join(self.library_config_path, 'pyozw_config.version'), 'w') as f: 
-                f.write(time.strftime("%Y-%m-%d %H:%M")) 
+            with open(os.path.join(self.library_config_path, 'pyozw_config.version'), 'w') as f:
+                f.write(time.strftime("%Y-%m-%d %H:%M"))
         except Exception:
             logger.exception("Can't update %s", os.path.join(self.library_config_path, 'pyozw_config.version'))
         shutil.rmtree(dest)
@@ -1418,6 +1409,6 @@ class ZWaveController(ZWaveObject):
         zip_ref.extractall(dest)
         zip_ref.close()
         os.system("cp -rf %s %s"%(os.path.join(dest, 'open-zwave-master', 'config'), self.library_config_path))
-        with open(os.path.join(self.library_config_path, 'pyozw_config.version'), 'w') as f: 
-            f.write(time.strftime("%Y-%m-%d %H:%M")) 
+        with open(os.path.join(self.library_config_path, 'pyozw_config.version'), 'w') as f:
+            f.write(time.strftime("%Y-%m-%d %H:%M"))
 

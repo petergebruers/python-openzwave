@@ -26,3 +26,17 @@ try:
 except:
     # bootstrapping
     pass
+
+import logging
+
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        """NullHandler logger for python 2.6"""
+        def emit(self, record):
+            pass
+logger = logging.getLogger(__name__)
+
+# Set default logging handler to avoid "No handler found" warnings.
+logger.addHandler(NullHandler())
