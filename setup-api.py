@@ -28,6 +28,7 @@ import sys
 from pyozw_version import pyozw_version
 from pyozw_setup import install_requires
 
+
 DEBIAN_PACKAGE = False
 filtered_args = []
 
@@ -38,44 +39,65 @@ for arg in sys.argv:
         filtered_args.append(arg)
 sys.argv = filtered_args
 
+
 def _getDirs(base):
-    return [x for x in glob.iglob(os.path.join( base, '*')) if os.path.isdir(x) ]
+    return [x for x in glob.iglob(os.path.join(base, '*')) if os.path.isdir(x)]
+
 
 def data_files_config(target, source, pattern):
     ret = list()
     tup = list()
     tup.append(target)
-    tup.append(glob.glob(os.path.join(source,pattern)))
+    tup.append(glob.glob(os.path.join(source, pattern)))
     ret.append(tup)
     dirs = _getDirs(source)
     if len(dirs):
         for d in dirs:
-            rd = d.replace(source+os.sep, "", 1)
-            ret.extend(data_files_config(os.path.join(target,rd), \
-                os.path.join(source,rd), pattern))
+            rd = d.replace(source + os.sep, "", 1)
+            ret.extend(
+                data_files_config(
+                    os.path.join(target, rd),
+                    os.path.join(source, rd),
+                    pattern
+                )
+            )
     return ret
 
-data_files = data_files_config('share/doc/python-openzwave','docs/_build/html','*.html')
-data_files.extend(data_files_config('share/doc/python-openzwave','docs/_build/html','*.js'))
-data_files.extend(data_files_config('share/doc/python-openzwave','docs/_build/html','inv'))
-data_files.extend(data_files_config('share/doc/python-openzwave','docs/_build/html','*.txt'))
-data_files.extend(data_files_config('share/doc/python-openzwave','docs/_build/html','*.png'))
-data_files.extend(data_files_config('share/doc/python-openzwave','docs/_build/html','*.css'))
-data_files.extend(data_files_config('share/doc/python-openzwave','docs/_build/html','*.gif'))
+
+data_extensions = [
+    '*.html',
+    '*.js',
+    'inv',
+    '*.txt',
+    '*.png',
+    '*.css',
+    '*.gif'
+]
+
+data_files = []
+
+for extension in data_extensions:
+    data_files += data_files_config(
+        'share/doc/python-openzwave',
+        'docs/_build/html',
+        extension
+    )
 
 setup(
-  name = 'openzwave',
-  author='Sébastien GALLET aka bibi2100 <bibi21000@gmail.com>',
-  author_email='bibi21000@gmail.com',
-  url='https://github.com/OpenZWave/python-openzwave',
-  version = pyozw_version,
-  zip_safe = False,
-  package_dir = {'' : 'src-api'},
-  #packages = find_packages(),
-  #packages = ['openzwave'],
-  packages = find_packages('src-api', exclude=["scripts"]),
-  #The following line install documentation in share/python-openzwave
-  #data_files = data_files,
-  #recommend : "pysqlite >= 2.6",
-  install_requires=install_requires()+[ 'libopenzwave == %s' % pyozw_version ]
+    name='openzwave',
+    author='Sébastien GALLET aka bibi2100 <bibi21000@gmail.com>',
+    author_email='bibi21000@gmail.com',
+    url='https://github.com/OpenZWave/python-openzwave',
+    version=pyozw_version,
+    zip_safe=False,
+    package_dir={'': 'src-api'},
+    # packages = find_packages(),
+    # packages = ['openzwave'],
+    packages=find_packages('src-api', exclude=["scripts"]),
+    # The following line install documentation in share/python-openzwave
+    # data_files = data_files,
+    # recommend : "pysqlite >= 2.6",
+    install_requires=install_requires() + [
+        'libopenzwave == %s' % pyozw_version
+    ]
 )
