@@ -17,7 +17,8 @@ When joining a room, you will receive message from it.
 
 __license__ = """
 
-This file is part of **python-openzwave** project https://github.com/OpenZWave/python-openzwave.
+This file is part of **python-openzwave** 
+project https://github.com/OpenZWave/python-openzwave.
 
 License : GPL(v3)
 
@@ -37,272 +38,407 @@ __author__ = 'Sébastien GALLET aka bibi21000'
 __email__ = 'bibi21000@gmail.com'
 try:
     from gevent import monkey
+
     monkey.patch_all()
 except ImportError:
     pass
-import os, sys
-import time
-from threading import Thread
 
-from flask import Flask, render_template, session, request, current_app
-from flask.ext.socketio import SocketIO, emit, join_room, leave_room, close_room, disconnect
+from flask import session, request, current_app
+from flask.ext.socketio import (
+    SocketIO,
+    emit,
+    join_room,
+    leave_room,
+    close_room,
+    disconnect
+)
 
-import libopenzwave
-import openzwave
-from openzwave.node import ZWaveNode
-from openzwave.value import ZWaveValue
-from openzwave.scene import ZWaveScene
-from openzwave.controller import ZWaveController
-from openzwave.network import ZWaveNetwork
-from openzwave.option import ZWaveOption
-from louie import dispatcher, All
 from pyozwweb.app import socketio, app
-
 import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        """NullHandler logger for python 2.6"""
-        def emit(self, record):
-            pass
-logging.getLogger('pyozwweb').addHandler(NullHandler())
+
+
+logger = logging.getLogger('pyozwweb')
+
 
 @socketio.on('my echo event', namespace='/ozwave')
 def echo_message(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
-    logging.debug("Client %s request echo message : %s", request.remote_addr, message)
-    emit('my response',
-         {'data': message['data'], 'count': session['receive_count']})
+    logging.debug(
+        "Client %s request echo message : %s",
+        request.remote_addr,
+        message
+    )
+    emit(
+        'my response',
+        {'data': message['data'], 'count': session['receive_count']}
+    )
+
 
 @socketio.on('disconnect request', namespace='/ozwave')
 def disconnect_request():
     session['receive_count'] = session.get('receive_count', 0) + 1
     logging.debug("Client %s disconnects", request.remote_addr)
-    emit('my response',
-         {'data': 'Disconnected!', 'count': session['receive_count']})
+    emit(
+        'my response',
+        {'data': 'Disconnected!', 'count': session['receive_count']}
+    )
     disconnect()
+
 
 @socketio.on('connect', namespace='/ozwave')
 def echo_connect():
     logging.debug("Client %s connects", request.remote_addr)
     emit('my response', {'data': 'Connected', 'count': 0})
 
+
 @socketio.on('my network event', namespace='/ozwave')
 def echo_network_event(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     logging.debug("Client %s network event : %s", request.remote_addr, message)
-    done=False
-    keys = ['zoomlevel','zoomx','zoomy','panx','pany']
+    done = False
+    keys = ['zoomlevel', 'zoomx', 'zoomy', 'panx', 'pany']
     kvals = {}
     for key in keys:
         if key in message:
-            kvals[key]=message[key]
+            kvals[key] = message[key]
     logging.debug("kvals : %s", kvals)
     if len(kvals) > 0:
         current_app.extensions['zwnetwork'].kvals = kvals
         done = True
-        #Should we emit an event ? Or the api should send a new python louie mesage ? Or nothing
-    if done == False :
-        emit('my network response',
-             {'data': current_app.extensions['zwnetwork'].to_dict(), 'count': session['receive_count']})
+        # Should we emit an event ? Or the api should send a new
+        # python louie mesage ? Or nothing
+    if done is False:
+        emit(
+            'my network response',
+            {
+                'data': current_app.extensions['zwnetwork'].to_dict(),
+                'count': session['receive_count']
+            }
+        )
+
 
 @socketio.on('my node event', namespace='/ozwave')
 def echo_node_event(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     logging.debug("Client %s node event : %s", request.remote_addr, message)
-    try :
+    try:
         node_id = int(message['node_id'])
     except ValueError:
         node_id = 0
     except KeyError:
         node_id = 0
-    if node_id == 0 or node_id not in current_app.extensions['zwnetwork'].nodes:
+    if (
+        node_id == 0 or
+        node_id not in current_app.extensions['zwnetwork'].nodes
+    ):
         logging.warning('Received invalid node_id : %s', message)
         return
-    done=False
-    keys = ['posx','posy']
+
+    done = False
+    keys = ['posx', 'posy']
     kvals = {}
     for key in keys:
         if key in message:
-            kvals[key]=message[key]
+            kvals[key] = message[key]
+
     logging.debug("kvals : %s", kvals)
+
     if len(kvals) > 0:
         current_app.extensions['zwnetwork'].nodes[node_id].kvals = kvals
         done = True
-        #Should we emit an event ? Or the api should send a new python louie mesage ? Or nothing
+        # Should we emit an event ? Or the api should send a new
+        # python louie mesage ? Or nothing
     if 'name' in message:
-        current_app.extensions['zwnetwork'].nodes[node_id].name = message['name']
+
+        current_app.extensions['zwnetwork'].nodes[node_id].name = (
+            message['name']
+        )
         done = True
+
     if 'location' in message:
-        current_app.extensions['zwnetwork'].nodes[node_id].location = message['location']
+        current_app.extensions['zwnetwork'].nodes[node_id].location = (
+            message['location']
+        )
         done = True
-    if done == False :
+
+    if done is False:
         logging.debug("Client %s node event : emit my node response")
-        emit('my node response',
-             {'data': current_app.extensions['zwnetwork'].nodes[node_id].to_dict(), 'count': session['receive_count']})
+        node = current_app.extensions['zwnetwork'].nodes[node_id]
+        emit(
+            'my node response',
+            {
+                'data': node.to_dict(),
+                'count': session['receive_count']
+            }
+        )
+
 
 @socketio.on('my nodes event', namespace='/ozwave')
 def echo_nodes_event(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     logging.debug("Client %s nodes event : %s", request.remote_addr, message)
-    print("%s"%current_app.extensions['zwnetwork'].nodes_to_dict())
-    emit('my nodes response',
-         {'data': current_app.extensions['zwnetwork'].nodes_to_dict(), 'count': session['receive_count']})
+    print("%s" % current_app.extensions['zwnetwork'].nodes_to_dict())
+
+    network = current_app.extensions['zwnetwork']
+
+    emit(
+        'my nodes response',
+        {
+            'data': network.nodes_to_dict(),
+            'count': session['receive_count']
+        }
+    )
+
 
 @socketio.on('my controller event', namespace='/ozwave')
 def echo_controller_event(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
-    logging.debug("Client %s controller event : %s", request.remote_addr, message)
-    emit('my controller response',
-         {'data': current_app.extensions['zwnetwork'].controller.to_dict(), 'count': session['receive_count']})
+    logging.debug(
+        "Client %s controller event : %s",
+        request.remote_addr,
+        message
+    )
+
+    network = current_app.extensions['zwnetwork']
+    emit(
+        'my controller response',
+        {
+            'data': network.controller.to_dict(),
+            'count': session['receive_count']
+        }
+    )
+
 
 @socketio.on('my command event', namespace='/ozwave')
 def echo_command_event(message):
+    network = current_app.extensions['zwnetwork']
+
     session['receive_count'] = session.get('receive_count', 0) + 1
-    logging.debug("Client %s controller command event : %s", request.remote_addr, message)
-    data = {}
-    data['result'] = False
-    data['message'] = "Command fail to start"
+    logging.debug(
+        "Client %s controller command event : %s",
+        request.remote_addr,
+        message
+    )
+    data = dict(
+        result=False,
+        message="Command fail to start"
+    )
+
     command = message['command']
-    init_data = {'result':False, 'message':'', 'state':'', 'command':command}
-    #Emit a blank message to clean the old data in javascript
-    emit('my command response',
-        {'data': init_data,
-        'count': session['receive_count']})
+    init_data = {
+        'result': False,
+        'message': '',
+        'state': '',
+        'command': command
+    }
+    # Emit a blank message to clean the old data in javascript
+    emit(
+        'my command response',
+        {
+            'data':  init_data,
+            'count': session['receive_count']
+        }
+    )
     if command == 'no_command':
-        #This is for first time launch. Return default values for javascript
-        data = {}
-        data['message'] = current_app.extensions['zwnetwork'].controller.ctrl_last_message
-        data['state'] = current_app.extensions['zwnetwork'].controller.ctrl_last_state
-        emit('my message response',
-            {'data': data,
-            'count': session['receive_count']})
-        emit('my command response',
-            {'data': init_data,
-            'count': session['receive_count']})
+        # This is for first time launch. Return default values for javascript
+
+        data = dict(
+            message=network.controller.ctrl_last_message,
+            state=network.controller.ctrl_last_state
+        )
+        emit(
+            'my message response',
+            {
+                'data':  data,
+                'count': session['receive_count']
+            }
+        )
+        emit(
+            'my command response',
+            {
+                'data':  init_data,
+                'count': session['receive_count']
+            }
+        )
         return
     elif command == 'send_node_information':
-        node_id=-1
         try:
-            node_id=int(message['node_id'])
+            node_id = int(message['node_id'])
         except ValueError:
             node_id = -1
         except KeyError:
             node_id = -1
-        if node_id not in current_app.extensions['zwnetwork'].nodes :
+
+        if node_id not in network.nodes:
             data['result'] = False
             data['message'] = "Bad node_id"
         else:
-            data['result'] = current_app.extensions['zwnetwork'].controller.begin_command_send_node_information(node_id)
-            #data['result'] = True
+            data['result'] = (
+                network.controller.begin_command_send_node_information(node_id)
+            )
+            # data['result'] = True
     elif command == 'remove_failed_node':
-        node_id=-1
         try:
-            node_id=int(message['node_id'])
+            node_id = int(message['node_id'])
         except ValueError:
             node_id = -1
         except KeyError:
             node_id = -1
-        if node_id not in current_app.extensions['zwnetwork'].nodes :
+
+        if node_id not in network.nodes:
             data['result'] = False
             data['message'] = "Bad node_id"
         else:
-            data['result'] = current_app.extensions['zwnetwork'].controller.begin_command_remove_failed_node(node_id)
-            #data['result'] = True
+            data['result'] = (
+                network.controller.begin_command_remove_failed_node(node_id)
+            )
+            # data['result'] = True
     elif command == 'has_node_failed':
-        node_id=-1
         try:
-            node_id=int(message['node_id'])
+            node_id = int(message['node_id'])
         except ValueError:
             node_id = -1
         except KeyError:
             node_id = -1
-        if node_id not in current_app.extensions['zwnetwork'].nodes :
+
+        if node_id not in network.nodes:
             data['result'] = False
             data['message'] = "Bad node_id"
         else:
-            data['result'] = current_app.extensions['zwnetwork'].controller.begin_command_has_node_failed(node_id)
-            #data['result'] = True
+            data['result'] = (
+                network.controller.begin_command_has_node_failed(node_id)
+            )
+            # data['result'] = True
     elif command == 'replace_failed_node':
-        node_id=-1
         try:
-            node_id=int(message['node_id'])
+            node_id = int(message['node_id'])
         except ValueError:
             node_id = -1
         except KeyError:
             node_id = -1
-        if node_id not in current_app.extensions['zwnetwork'].nodes :
+
+        if node_id not in network.nodes:
             data['result'] = False
             data['message'] = "Bad node_id"
         else:
-            data['result'] = current_app.extensions['zwnetwork'].controller.begin_command_replace_failed_node(node_id)
-            #data['result'] = True
+            data['result'] = (
+                network.controller.begin_command_replace_failed_node(node_id)
+            )
+        # data['result'] = True
     elif command == 'request_node_neigbhor_update':
-        node_id=-1
         try:
-            node_id=int(message['node_id'])
+            node_id = int(message['node_id'])
         except ValueError:
             node_id = -1
         except KeyError:
             node_id = -1
-        if node_id not in current_app.extensions['zwnetwork'].nodes :
+        if node_id not in network.nodes:
             data['result'] = False
             data['message'] = "Bad node_id"
         else:
-            data['result'] = current_app.extensions['zwnetwork'].controller.begin_command_request_node_neigbhor_update(node_id)
-            #data['result'] = True
+            data['result'] = (
+                network.controller.begin_command_request_node_neigbhor_update(
+                    node_id
+                )
+            )
+            # data['result'] = True
     elif command == 'request_network_update':
-        data['result'] = current_app.extensions['zwnetwork'].controller.begin_command_request_network_update()
+        data['result'] = (
+            network.controller.begin_command_request_network_update()
+        )
     elif command == 'replication_send':
         try:
-            high_power = bool(message['high_power']) if 'high_power' in message else False
+            high_power = (
+                bool(message['high_power'])
+                if 'high_power' in message
+                else False
+            )
         except ValueError:
             high_power = False
         except KeyError:
             high_power = False
-        data['result'] = current_app.extensions['zwnetwork'].controller.begin_command_replication_send(high_power)
-        #data['result'] = True
+        data['result'] = (
+            network.controller.begin_command_replication_send(high_power)
+        )
+        # data['result'] = True
     elif command == 'add_device':
         try:
-            high_power = bool(message['high_power']) if 'high_power' in message else False
+            high_power = (
+                bool(message['high_power'])
+                if 'high_power' in message
+                else False
+            )
         except ValueError:
             high_power = False
         except KeyError:
             high_power = False
-        data['result'] = current_app.extensions['zwnetwork'].controller.begin_command_add_device(high_power)
-        #data['result'] = True
+
+        data['result'] = (
+            network.controller.begin_command_add_device(high_power)
+        )
+        # data['result'] = True
     elif command == 'remove_device':
         try:
-            high_power = bool(message['high_power']) if 'high_power' in message else False
+            high_power = (
+                bool(message['high_power'])
+                if 'high_power' in message
+                else False
+            )
         except ValueError:
             high_power = False
         except KeyError:
             high_power = False
-        data['result'] = current_app.extensions['zwnetwork'].controller.begin_command_remove_device(high_power)
-        #data['result'] = True
+
+        data['result'] = (
+            network.controller.begin_command_remove_device(high_power)
+        )
+        # data['result'] = True
     elif command == 'cancel_command':
-        data['result'] = current_app.extensions['zwnetwork'].controller.cancel_command()
-    if data['result'] == True :
+        data['result'] = network.controller.cancel_command()
+    if data['result'] is True:
         data['message'] = "Command started"
-    logging.debug("Client %s controller command event, data returned : %s", request.remote_addr, data)
-    emit('my command response',
-         {'data': data,
-          'count': session['receive_count']})
+    logging.debug(
+        "Client %s controller command event, data returned : %s",
+        request.remote_addr,
+        data
+    )
+    emit(
+        'my command response',
+        {
+            'data':  data,
+            'count': session['receive_count']
+        }
+    )
+
 
 @socketio.on('my value event', namespace='/ozwave')
 def echo_value_event(message):
+    network = current_app.extensions['zwnetwork']
     session['receive_count'] = session.get('receive_count', 0) + 1
     node_id = message['node_id']
     value_id = message['value_id']
-    logging.debug("Client %s value event : %s", request.remote_addr, current_app.extensions['zwnetwork'].nodes[node_id].values[value_id].to_dict())
-    emit('my value response',
-         {'data': current_app.extensions['zwnetwork'].nodes[node_id].values[value_id].to_dict(), 'count': session['receive_count']})
+    logging.debug(
+        "Client %s value event : %s",
+        request.remote_addr,
+        network.nodes[node_id].values[value_id].to_dict()
+    )
+    emit(
+        'my value response',
+        {
+            'data': network.nodes[node_id].values[value_id].to_dict(),
+            'count': session['receive_count']
+        }
+    )
+
 
 @socketio.on('my scenes event', namespace='/ozwave')
 def echo_scenes_event(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     logging.debug("Client %s scenes event : %s", request.remote_addr, message)
-    print("%s"%current_app.extensions['zwnetwork'].get_scenes())
-    emit('my scenes response',
-         {'data': current_app.extensions['zwnetwork'].get_scenes(), 'count': session['receive_count']})
+    print("%s" % current_app.extensions['zwnetwork'].get_scenes())
+    emit(
+        'my scenes response',
+        {
+            'data': current_app.extensions['zwnetwork'].get_scenes(),
+            'count': session['receive_count']
+        })
