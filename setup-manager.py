@@ -22,10 +22,7 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
 from setuptools import setup, find_packages
-import glob
-import os
-import sys
-import pyozw_version 
+import pyozw_version
 
 setup(
   name = 'pyozwman',

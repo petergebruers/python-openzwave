@@ -21,8 +21,8 @@ You should have received a copy of the GNU General Public License
 along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 Build process :
-- ask user what to do (zmq way in pip) 
-- or parametrizes it 
+- ask user what to do (zmq way in pip)
+- or parametrizes it
     --dev : use local sources and cythonize way (for python-openzwave devs, ...)
     --embed : use local sources and cpp file (for third parties packagers, ...)
     --git : download openzwave from git (for geeks)
@@ -34,10 +34,16 @@ Build process :
 from setuptools import setup, find_packages
 from distutils.extension import Extension
 from pyozw_version import pyozw_version
-from pyozw_setup import LOCAL_OPENZWAVE, SETUP_DIR
-from pyozw_setup import current_template, parse_template, get_dirs, data_files_config, install_requires
-from pyozw_setup import Template, DevTemplate, GitTemplate, EmbedTemplate, SharedTemplate
-from pyozw_setup import bdist_egg, build_openzwave, openzwave_config, build, clean, develop, install
+from pyozw_setup import current_template, install_requires
+from pyozw_setup import (
+    bdist_egg,
+    build_openzwave,
+    openzwave_config,
+    build,
+    clean,
+    develop,
+    install
+)
 
 print(current_template)
 print(current_template.ctx)

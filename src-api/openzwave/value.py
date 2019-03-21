@@ -24,7 +24,7 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
 from six import string_types
-from openzwave.object import ZWaveObject
+from .object import ZWaveObject
 
 # Set default logging handler to avoid "No handler found" warnings.
 import logging

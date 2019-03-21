@@ -25,21 +25,18 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 """
 
 import logging
-import sys, os
+import sys
 import resource
+import time
+
+from openzwave.network import ZWaveNetwork
+from openzwave.option import ZWaveOption
+
 #logging.getLogger('openzwave').addHandler(logging.NullHandler())
 #logging.basicConfig(level=logging.DEBUG)
 logging.basicConfig(level=logging.INFO)
 
 logger = logging.getLogger('openzwave')
-import openzwave
-from openzwave.node import ZWaveNode
-from openzwave.value import ZWaveValue
-from openzwave.scene import ZWaveScene
-from openzwave.controller import ZWaveController
-from openzwave.network import ZWaveNetwork
-from openzwave.option import ZWaveOption
-import time
 
 device="/dev/ttyUSB0"
 log="Debug"

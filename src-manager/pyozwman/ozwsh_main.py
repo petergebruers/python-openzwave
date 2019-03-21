@@ -28,30 +28,14 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 __author__ = 'bibi21000'
 
-from select import select
-import sys
-import os
-from traceback import format_exc
 import logging
 import six
-if six.PY3:
-    from pydispatch import dispatcher
-else:
-    from louie import dispatcher
 import urwid
 from urwid.raw_display import Screen
-#import headerpanel
-#import dirpanel
-#import setuppanel
-#from ucp import UrwidCmdProc, isUCP
-#from utils import utilInit, log
-from openzwave.node import ZWaveNode
-from openzwave.value import ZWaveValue
-from openzwave.scene import ZWaveScene
+
 from openzwave.controller import ZWaveController
 from openzwave.network import ZWaveNetwork
 from openzwave.option import ZWaveOption
-from pyozwman.ozwsh_widgets import OldestTree
 from pyozwman.ozwsh_widgets import RootTree, RootBox, RootItem, RootDir
 from pyozwman.ozwsh_widgets import ControllerTree, ControllerBox
 from pyozwman.ozwsh_widgets import NodeTree, NodeBox
@@ -64,6 +48,11 @@ from pyozwman.ozwsh_widgets import GroupsTree, GroupsBox, AssociationItem
 from pyozwman.ozwsh_widgets import SceneTree, SceneBox, SceneItem
 from pyozwman.ozwsh_widgets import ScenesTree, ScenesBox, ScenesItem
 from pyozwman.ozwsh_widgets import StatTree, StatBox
+
+if six.PY3:
+    from pydispatch import dispatcher
+else:
+    from louie import dispatcher
 
 
 MAIN_TITLE = "openzwave Shell"

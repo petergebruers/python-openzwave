@@ -28,8 +28,8 @@ from platform import system as platform_system
 
 import libopenzwave
 from libopenzwave import PyLogLevels
-from openzwave.object import ZWaveException
-from openzwave.singleton import Singleton
+from .object import ZWaveException
+from .singleton import Singleton
 
 # Set default logging handler to avoid "No handler found" warnings.
 import logging

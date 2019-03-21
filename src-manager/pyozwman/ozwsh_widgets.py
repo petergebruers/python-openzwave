@@ -32,11 +32,9 @@ import sys
 import os
 from traceback import format_exc
 import six
-if six.PY3:
-    from pydispatch import dispatcher
-else:
-    from louie import dispatcher
 import urwid
+import logging
+
 from urwid.raw_display import Screen
 from openzwave.node import ZWaveNode
 from openzwave.value import ZWaveValue
@@ -45,7 +43,11 @@ from openzwave.controller import ZWaveController
 from openzwave.network import ZWaveNetwork
 from openzwave.option import ZWaveOption
 
-import logging
+if six.PY3:
+    from pydispatch import dispatcher
+else:
+    from louie import dispatcher
+
 
 class OldestTree(urwid.ListWalker):
 

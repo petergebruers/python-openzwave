@@ -24,22 +24,23 @@ You should have received a copy of the GNU General Public License
 along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
-import os, sys
+import os
 import six
-if six.PY3:
-    from pydispatch import dispatcher
-    from urllib.request import urlopen
-else:
-    from louie import dispatcher
-    from urllib2 import urlopen
 import zipfile
 import tempfile
 import threading
 import shutil
 import time
 
-from openzwave.object import ZWaveObject, deprecated
+from .object import ZWaveObject, deprecated
 from libopenzwave import PyStatDriver, PyControllerState
+
+if six.PY3:
+    from pydispatch import dispatcher
+    from urllib.request import urlopen
+else:
+    from louie import dispatcher
+    from urllib2 import urlopen
 
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
@@ -367,7 +368,7 @@ class ZWaveController(ZWaveObject):
         tversion = "Original %s" % self.library_version
         fversion = os.path.join(self.library_config_path, 'pyozw_config.version')
         if os.path.isfile(fversion):
-            with open(fversion, 'r') as f: 
+            with open(fversion, 'r') as f:
                 val = f.read()
             tversion = "Git %s" % val
         return tversion
@@ -1378,7 +1379,7 @@ class ZWaveController(ZWaveObject):
                 shutil.rmtree(dest)
             except Exception:
                 pass
-                
+
         if os.path.isdir(self.library_config_path):
             #Try to remove old config
             try:
@@ -1392,8 +1393,8 @@ class ZWaveController(ZWaveObject):
             logger.exception("Can't copy to %s", self.library_config_path)
 
         try:
-            with open(os.path.join(self.library_config_path, 'pyozw_config.version'), 'w') as f: 
-                f.write(time.strftime("%Y-%m-%d %H:%M")) 
+            with open(os.path.join(self.library_config_path, 'pyozw_config.version'), 'w') as f:
+                f.write(time.strftime("%Y-%m-%d %H:%M"))
         except Exception:
             logger.exception("Can't update %s", os.path.join(self.library_config_path, 'pyozw_config.version'))
         shutil.rmtree(dest)
@@ -1418,6 +1419,6 @@ class ZWaveController(ZWaveObject):
         zip_ref.extractall(dest)
         zip_ref.close()
         os.system("cp -rf %s %s"%(os.path.join(dest, 'open-zwave-master', 'config'), self.library_config_path))
-        with open(os.path.join(self.library_config_path, 'pyozw_config.version'), 'w') as f: 
-            f.write(time.strftime("%Y-%m-%d %H:%M")) 
+        with open(os.path.join(self.library_config_path, 'pyozw_config.version'), 'w') as f:
+            f.write(time.strftime("%Y-%m-%d %H:%M"))
 

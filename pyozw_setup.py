@@ -49,7 +49,6 @@ try:
     from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 except ImportError:
     log.warn("ImportError in : from wheel.bdist_wheel import bdist_wheel as _bdist_wheel")
-from platform import system as platform_system
 import glob
 
 from pyozw_version import pyozw_version
