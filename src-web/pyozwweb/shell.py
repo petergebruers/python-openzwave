@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""will allow you to get a console and enter commands within your flask environment.
-Maybe not as nice as debugging with pdb, but always useful (when you will initialize your database).
+"""will allow you to get a console and enter commands within your flask
+environment.
+Maybe not as nice as debugging with pdb, but always useful
+(when you will initialize your database).
 
 Credits : https://github.com/mitsuhiko/flask/wiki/Large-app-how-to
 
@@ -10,7 +12,8 @@ Credits : https://github.com/mitsuhiko/flask/wiki/Large-app-how-to
 
 __license__ = """
 
-This file is part of **python-openzwave** project https://github.com/OpenZWave/python-openzwave.
+This file is part of **python-openzwave** 
+project https://github.com/OpenZWave/python-openzwave.
 
 License : GPL(v3)
 
@@ -34,6 +37,6 @@ import readline
 from pprint import pprint
 
 from flask import *
-from app import *
+from .app import *
 
 os.environ['PYTHONINSPECT'] = 'True'
