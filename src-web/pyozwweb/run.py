@@ -9,7 +9,8 @@ Credits : https://github.com/mitsuhiko/flask/wiki/Large-app-how-to
 
 __license__ = """
 
-This file is part of **python-openzwave** project https://github.com/OpenZWave/python-openzwave.
+This file is part of **python-openzwave** 
+project https://github.com/OpenZWave/python-openzwave.
 
 License : GPL(v3)
 
@@ -27,19 +28,23 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 """
 __author__ = 'Sébastien GALLET aka bibi21000'
 __email__ = 'bibi21000@gmail.com'
+
 try:
     from gevent import monkey
     monkey.patch_all()
 except ImportError:
     pass
-from pyozwweb.app import create_app, run_app
+
+from .app import create_app, run_app
+
 
 def main():
     app, socketio = create_app(config_object='pyozwweb.config.RunConfig')
     run_app(app, socketio)
-    #app.run(debug=True)
-    #socketio.run(app)
-    #print app
+    # app.run(debug=True)
+    # socketio.run(app)
+    # print app
+
 
 if __name__ == '__main__':
     main()
