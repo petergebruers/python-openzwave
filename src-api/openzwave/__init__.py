@@ -29,6 +29,14 @@ except:
 
 import logging
 
+LOGGING_FORMAT = (
+    '[%(levelname)s]'
+    '[%(thread)d] '
+    '%(name)s.%(module)s.%(funcName)s - '
+    '%(message)s'
+)
+
+
 try:  # Python 2.7+
     from logging import NullHandler
 except ImportError:
@@ -40,3 +48,4 @@ logger = logging.getLogger(__name__)
 
 # Set default logging handler to avoid "No handler found" warnings.
 logger.addHandler(NullHandler())
+logging.basicConfig(format=LOGGING_FORMAT, level=None)
