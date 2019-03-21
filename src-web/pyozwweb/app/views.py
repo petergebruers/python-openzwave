@@ -17,7 +17,8 @@ When joining a room, you will receive message from it.
 
 __license__ = """
 
-This file is part of **python-openzwave** project https://github.com/OpenZWave/python-openzwave.
+This file is part of **python-openzwave** 
+project https://github.com/OpenZWave/python-openzwave.
 
 License : GPL(v3)
 
@@ -38,67 +39,54 @@ __email__ = 'bibi21000@gmail.com'
 from gevent import monkey
 monkey.patch_all()
 
-import os, sys
-import time
-from threading import Thread
+import logging # NOQA
+from flask import render_template # NOQA
+from pyozwweb.app import socketio, app # NOQA
 
-from flask import Flask, render_template, session, request, current_app
-from flask.ext.socketio import SocketIO, emit, join_room, leave_room, close_room, disconnect
 
-import libopenzwave
-import openzwave
-from openzwave.node import ZWaveNode
-from openzwave.value import ZWaveValue
-from openzwave.scene import ZWaveScene
-from openzwave.controller import ZWaveController
-from openzwave.network import ZWaveNetwork
-from openzwave.option import ZWaveOption
-from louie import dispatcher, All
-from pyozwweb.app import socketio, app
-from listener import listener
+logger = logging.getLogger('pyozwweb')
 
-import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        """NullHandler logger for python 2.6"""
-        def emit(self, record):
-            pass
-logging.getLogger('pyozwweb').addHandler(NullHandler())
 
 @app.errorhandler(404)
-def not_found(error):
+def not_found(_):
     return render_template('404.html'), 404
+
 
 @app.route('/')
 def home():
     return render_template('home.html')
+
 
 @app.route('/node')
 @app.route('/node/<int:node_id>')
 def node(node_id=1):
     return render_template('node.html', node_id=node_id)
 
+
 @app.route('/values')
 def values():
     return render_template('values.html')
+
 
 @app.route('/controller')
 def controller():
     return render_template('controller.html')
 
+
 @app.route('/debug')
 def debug():
     return render_template('debug.html')
+
 
 @app.route('/map')
 def map():
     return render_template('map.html')
 
+
 @app.route('/scenes')
 def scenes():
     return render_template('scenes.html')
+
 
 @app.route('/chat')
 def chat():
