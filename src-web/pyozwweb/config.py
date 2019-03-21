@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
 
-"""Storing all the module configurations. Here, the database is setup to use SQLite, because it's a very convenient dev env database.
-Most likely /config.py won't be a part of your repository and will be different on your test and production servers.
+"""Storing all the module configurations. Here, the database is setup to use
+SQLite, because it's a very convenient dev env database.
+Most likely /config.py won't be a part of your repository and will be different
+on your test and production servers.
 
  - _basedir is a trick for you to get the folder where the script runs
- - DEBUG indicates that it is a dev environment, you'll get the very helpful error page from flask when an error occurs.
- - SECRET_KEY will be used to sign cookies. Change it and all your users will have to login again.
- - ADMINS will be used if you need to email information to the site administrators.
- - SQLALCHEMY_DATABASE_URI and DATABASE_CONNECT_OPTIONS are SQLAlchemy connection options (hard to guess)
+ - DEBUG indicates that it is a dev environment, you'll get the very helpful
+ error page from flask when an error occurs.
+ - SECRET_KEY will be used to sign cookies. Change it and all your users will
+ have to login again.
+ - ADMINS will be used if you need to email information to the site
+ administrators.
+ - SQLALCHEMY_DATABASE_URI and DATABASE_CONNECT_OPTIONS are SQLAlchemy
+ connection options (hard to guess)
  - THREAD_PAGE my understanding was 2/core... might be wrong :)
  - CSRF_ENABLED and CSRF_SESSION_KEY are protecting against form post fraud
- - RECAPTCHA_* WTForms comes with a RecaptchaField ready to use... just need to go to recaptcha website and get your public and private key.
+ - RECAPTCHA_* WTForms comes with a RecaptchaField ready to use... just need
+ to go to recaptcha website and get your public and private key.
 
 Credits : https://github.com/mitsuhiko/flask/wiki/Large-app-how-to
 
@@ -18,7 +25,8 @@ Credits : https://github.com/mitsuhiko/flask/wiki/Large-app-how-to
 
 __license__ = """
 
-This file is part of **python-openzwave** project https://github.com/OpenZWave/python-openzwave.
+This file is part of **python-openzwave** 
+project https://github.com/OpenZWave/python-openzwave.
 
 License : GPL(v3)
 
@@ -40,6 +48,7 @@ __email__ = 'bibi21000@gmail.com'
 import os
 _basedir = os.path.abspath(os.path.dirname(__file__))
 
+
 class Config(object):
     DEBUG = False
     TESTING = False
@@ -52,7 +61,9 @@ class Config(object):
     LOGGING_CONF = 'logging.conf'
     APP_CONF = 'app.conf'
 
-    SECRET_KEY = 'This string will be replaced with a proper key in production.'
+    SECRET_KEY = (
+        'This string will be replaced with a proper key in production.'
+    )
 
     THREADS_PER_PAGE = 8
 
@@ -70,20 +81,24 @@ class Config(object):
     ZWAVE_DIR = None
     USER_DIR = "."
 
+
 class ProductionConfig(Config):
     DATABASE_URI = 'mysql://user@localhost/foo'
     ZWAVE_DEBUG = "Warning"
+
 
 class RunConfig(Config):
     TESTING = True
     DEBUG = True
     ZWAVE_DIR = "../../openzwave/config"
 
+
 class ReloadConfig(Config):
     TESTING = True
     DEBUG = True
     RELOADER = True
     ZWAVE_DIR = "../../openzwave/config"
+
 
 class TestingConfig(Config):
     TESTING = True
