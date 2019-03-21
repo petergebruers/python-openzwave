@@ -65,7 +65,8 @@ When joining a room, you will receive message from it.
 
 __license__ = """
 
-This file is part of **python-openzwave** project https://github.com/OpenZWave/python-openzwave.
+This file is part of **python-openzwave** 
+project https://github.com/OpenZWave/python-openzwave.
 
 License : GPL(v3)
 
@@ -87,6 +88,6 @@ __email__ = 'bibi21000@gmail.com'
 
 try:
     __import__('pkg_resources').declare_namespace(__name__)
-except:  # pragma: no cover
+except ImportError:  # pragma: no cover
     pass # pragma: no cover
-#__all__= ['chat', 'network', 'ozwaver']
+# __all__= ['chat', 'network', 'ozwaver']
