@@ -14,7 +14,8 @@ When joining a room, you will receive message from it.
 
 __license__ = """
 
-This file is part of **python-openzwave** project https://github.com/OpenZWave/python-openzwave.
+This file is part of **python-openzwave** 
+project https://github.com/OpenZWave/python-openzwave.
 
 License : GPL(v3)
 
@@ -38,24 +39,23 @@ try:
     monkey.patch_all()
 except ImportError:
     pass
-import os, sys
-import time
-from threading import Thread
 
-from flask import Flask, render_template, session, request, current_app
-from flask.ext.socketio import SocketIO, emit, join_room, leave_room, close_room, disconnect
+
+from flask import session, request
+from flask.ext.socketio import (
+    SocketIO,
+    emit,
+    join_room,
+    leave_room,
+    close_room,
+    disconnect
+)
 
 from pyozwweb.app import socketio, app
-
 import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        """NullHandler logger for python 2.6"""
-        def emit(self, record):
-            pass
-logging.getLogger('pyozwweb').addHandler(NullHandler())
+
+logger = logging.getLogger('pyozwweb')
+
 
 @socketio.on('my event', namespace='/test')
 def test_message(message):
@@ -127,88 +127,88 @@ def test_disconnect():
     print('Client disconnected')
 
 
-#~ @socketio.on('my echo event', namespace='/socket')
-#~ def socket_echo(message):
-    #~ session['receive_count'] = session.get('receive_count', 0) + 1
-    #~ logging.debug("Client %s send echo" % (request.remote_addr))
-    #~ logging.debug('Echo event %s', message)
-    #~ socketio.emit('my echo response',
-         #~ {'data': message, 'count': session['receive_count']})
-#~
-#~ @socketio.on('test event', namespace='/socket')
-#~ def test_message(message):
-    #~ session['receive_count'] = session.get('receive_count', 0) + 1
-    #~ socketio.emit('test response',
-         #~ {'data': message['data'], 'count': session['receive_count']})
-#~
-#~ @socketio.on('my broadcast event', namespace='/socket')
-#~ def test_broadcast_message(message):
-    #~ session['receive_count'] = session.get('receive_count', 0) + 1
-    #~ logging.debug("Client %s has broadcast message" % (request.remote_addr))
-    #~ socketio.emit('my response',
-         #~ {'data': message['data'], 'count': session['receive_count']},
-          #~ broadcast=True)
-#~
-#~ @socketio.on('join', namespace='/socket')
-#~ def join(message):
-    #~ data = 'No data for room %s' % message['room']
-    #~ if message['room'] == 'network':
-        #~ data = data_room_network(current_app.extensions['zwnetwork'])
-    #~ logging.debug("Client %s has joined room %s" % (request.remote_addr, message['room']))
-    #~ join_room(message['room'])
-    #~ session['receive_count'] = session.get('receive_count', 0) + 1
-    #~ socketio.emit('my %s response' % message['room'],
-         #~ {'data' : data,
-          #~ 'count': session['receive_count']},
-          #~ room=message['room'],
-          #~ )
-#~
-#~ @socketio.on('refresh', namespace='/socket')
-#~ def refresh(message):
-    #~ data = 'No data for room %s' % message['room']
-    #~ if message['room'] == 'network':
-        #~ data = data_room_network(current_app.extensions['zwnetwork'])
-    #~ logging.debug("Client %s refresh room %s" % (request.remote_addr, message['room']))
-    #~ session['receive_count'] = session.get('receive_count', 0) + 1
-    #~ socketio.emit('my %s response' % message['room'],
-         #~ {'data' : data,
-          #~ 'count': session['receive_count']},
-          #~ room=message['room'],
-          #~ )
-#~
-#~ @socketio.on('leave', namespace='/socket')
-#~ def leave(message):
-    #~ leave_room(message['room'])
-    #~ session['receive_count'] = session.get('receive_count', 0) + 1
-    #~ logging.debug("Client %s has leaved room %s" % (request.remote_addr, message['room']))
-    #~ socketio.emit('my %s response' % message['room'],
-         #~ {'data': None,
-          #~ 'count': session['receive_count']},
-          #~ room=message['room'],
-          #~ )
-#~
-#~ @socketio.on('close room', namespace='/socket')
-#~ def close(message):
-    #~ session['receive_count'] = session.get('receive_count', 0) + 1
-    #~ logging.debug("Client %s has closed the room %s" % (request.remote_addr, message['room']))
-    #~ socketio.emit('my echo response', {'data': 'Room ' + message['room'] + ' is closing.',
-                         #~ 'count': session['receive_count']},
-         #~ room=message['room'])
-    #~ close_room(message['room'])
-#~
-#~ @socketio.on('my room event', namespace='/socket')
-#~ def send_room_message(message):
-    #~ session['receive_count'] = session.get('receive_count', 0) + 1
-    #~ logging.debug("Client %s has sent message to room %s" % (request.remote_addr, message['room']))
-    #~ socketio.emit('my echo response',
-         #~ {'data': message['data'], 'count': session['receive_count']},
-         #~ room=message['room'])
-#~
-#~
-#~ @socketio.on('disconnect request', namespace='/socket')
-#~ def disconnect_request():
-    #~ session['receive_count'] = session.get('receive_count', 0) + 1
-    #~ logging.debug("Client %s disconnects." % (request.remote_addr))
-    #~ socketio.emit('my echo response',
-         #~ {'data': 'Disconnected!', 'count': session['receive_count']})
-    #~ disconnect()
+# ~ @socketio.on('my echo event', namespace='/socket')
+# ~ def socket_echo(message):
+#     ~ session['receive_count'] = session.get('receive_count', 0) + 1
+#     ~ logging.debug("Client %s send echo" % (request.remote_addr))
+#     ~ logging.debug('Echo event %s', message)
+#     ~ socketio.emit('my echo response',
+#          ~ {'data': message, 'count': session['receive_count']})
+# ~
+# ~ @socketio.on('test event', namespace='/socket')
+# ~ def test_message(message):
+#     ~ session['receive_count'] = session.get('receive_count', 0) + 1
+#     ~ socketio.emit('test response',
+#          ~ {'data': message['data'], 'count': session['receive_count']})
+# ~
+# ~ @socketio.on('my broadcast event', namespace='/socket')
+# ~ def test_broadcast_message(message):
+#     ~ session['receive_count'] = session.get('receive_count', 0) + 1
+#     ~ logging.debug("Client %s has broadcast message" % (request.remote_addr))
+#     ~ socketio.emit('my response',
+#          ~ {'data': message['data'], 'count': session['receive_count']},
+#           ~ broadcast=True)
+# ~
+# ~ @socketio.on('join', namespace='/socket')
+# ~ def join(message):
+#     ~ data = 'No data for room %s' % message['room']
+#     ~ if message['room'] == 'network':
+#         ~ data = data_room_network(current_app.extensions['zwnetwork'])
+#     ~ logging.debug("Client %s has joined room %s" % (request.remote_addr, message['room']))
+#     ~ join_room(message['room'])
+#     ~ session['receive_count'] = session.get('receive_count', 0) + 1
+#     ~ socketio.emit('my %s response' % message['room'],
+#          ~ {'data' : data,
+#           ~ 'count': session['receive_count']},
+#           ~ room=message['room'],
+#           ~ )
+# ~
+# ~ @socketio.on('refresh', namespace='/socket')
+# ~ def refresh(message):
+#     ~ data = 'No data for room %s' % message['room']
+#     ~ if message['room'] == 'network':
+#         ~ data = data_room_network(current_app.extensions['zwnetwork'])
+#     ~ logging.debug("Client %s refresh room %s" % (request.remote_addr, message['room']))
+#     ~ session['receive_count'] = session.get('receive_count', 0) + 1
+#     ~ socketio.emit('my %s response' % message['room'],
+#          ~ {'data' : data,
+#           ~ 'count': session['receive_count']},
+#           ~ room=message['room'],
+#           ~ )
+# ~
+# ~ @socketio.on('leave', namespace='/socket')
+# ~ def leave(message):
+#     ~ leave_room(message['room'])
+#     ~ session['receive_count'] = session.get('receive_count', 0) + 1
+#     ~ logging.debug("Client %s has leaved room %s" % (request.remote_addr, message['room']))
+#     ~ socketio.emit('my %s response' % message['room'],
+#          ~ {'data': None,
+#           ~ 'count': session['receive_count']},
+#           ~ room=message['room'],
+#           ~ )
+# ~
+# ~ @socketio.on('close room', namespace='/socket')
+# ~ def close(message):
+#     ~ session['receive_count'] = session.get('receive_count', 0) + 1
+#     ~ logging.debug("Client %s has closed the room %s" % (request.remote_addr, message['room']))
+#     ~ socketio.emit('my echo response', {'data': 'Room ' + message['room'] + ' is closing.',
+#                          ~ 'count': session['receive_count']},
+#          ~ room=message['room'])
+#     ~ close_room(message['room'])
+# ~
+# ~ @socketio.on('my room event', namespace='/socket')
+# ~ def send_room_message(message):
+#     ~ session['receive_count'] = session.get('receive_count', 0) + 1
+#     ~ logging.debug("Client %s has sent message to room %s" % (request.remote_addr, message['room']))
+#     ~ socketio.emit('my echo response',
+#          ~ {'data': message['data'], 'count': session['receive_count']},
+#          ~ room=message['room'])
+# ~
+# ~
+# ~ @socketio.on('disconnect request', namespace='/socket')
+# ~ def disconnect_request():
+#     ~ session['receive_count'] = session.get('receive_count', 0) + 1
+#     ~ logging.debug("Client %s disconnects." % (request.remote_addr))
+#     ~ socketio.emit('my echo response',
+#          ~ {'data': 'Disconnected!', 'count': session['receive_count']})
+#     ~ disconnect()
