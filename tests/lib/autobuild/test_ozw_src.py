@@ -107,11 +107,13 @@ class TestOzwSrc(TestLib):
         with open(os.path.join (OZWDIR, 'cpp', 'src', 'value_classes', 'ValueID.h'), 'r') as f:
             lines = ''.join(f.readlines())
             #~ print(lines)
-            values = re.search(r"enum ValueType.*\{(.*)\}.*ValueType_Max", lines, re.MULTILINE|re.DOTALL).group(1)
+            values = re.search(r"enum ValueType.*\{(.*)\}.*uint32 GetHomeId", lines, re.MULTILINE|re.DOTALL).group(1)
             #~ print(values)
             alls = re.findall(r"ValueType_(\w*)", values, re.MULTILINE)
             print(alls)
             for i,j in zip(range(len(alls)-2),alls):
+                if j == 'Max':
+                    break
                 print(libopenzwave.PyValueTypes[i], j)
                 self.assertEqual(libopenzwave.PyValueTypes[i], j)
 
