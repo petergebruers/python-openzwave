@@ -3314,7 +3314,7 @@ getValueType_, getValueInstance_, getValueIndex_, getValueCommandClass_
             return
 
         cdef bool type_bool
-        if self.manager.GetValueAsBitSet(value.at(id), pos, &type_bool):
+        if self.manager.GetValueAsBitSet(value, pos, &type_bool):
             return type_bool
 
     def getValueAsBool(self, id):
