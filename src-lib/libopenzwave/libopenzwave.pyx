@@ -227,6 +227,7 @@ PyValueTypes = [
     EnumWithDoc('String').setDoc("Text string"),
     EnumWithDoc('Button').setDoc("A write-only value that is the equivalent of pressing a button to send a command to a device"),
     EnumWithDoc('Raw').setDoc("Raw byte values"),
+    EnumWithDoc('BitSet').setDoc("Group of boolean values"),
     ]
 
 PyControllerState = [
@@ -446,6 +447,10 @@ cdef getValueFromType(Manager *manager, valueId):
         elif datatype == "List":
             cret = manager.GetValueListSelection(values_map.at(valueId), &type_string)
             ret = type_string.c_str() if cret else None
+            return ret
+        elif datatype == "BitSet":
+            cret = manager.GetValueAsInt(values_map.at(valueId), &type_int)
+            ret = type_int if cret else None
             return ret
         else :
             cret = manager.GetValueAsString(values_map.at(valueId), &type_string)
@@ -2820,7 +2825,7 @@ Get whether the node is a ZWave+ one
 #        bool SetValue(ValueID& valueid, string value)
 #        bool SetValueListSelection(ValueID& valueid, string selecteditem)
 
-    def setValue(self, id, value):
+    def setValue(self, id, value, pos=None):
         '''
 .. _setValue:
 
@@ -2895,6 +2900,17 @@ if the Z-Wave message actually failed to get through.  Notification callbacks wi
                 cret = self.manager.SetValueListSelection(values_map.at(id), type_string)
                 logger.debug("SetValueListSelection %s", cret)
                 ret = 1 if cret else 0
+            elif datatype == "BitSet":
+                if pos is not None:
+                    pos, value = value, pos
+                    type_bool = value
+                    cret = self.manager.SetValue(values_map.at(id), pos, type_bool)
+                else:
+                    type_int = value
+                    cret = self.manager.SetValue(values_map.at(id), type_int)
+
+                ret = 1 if cret else 0
+
         return ret
 
     def refreshValue(self, id):
@@ -3270,6 +3286,36 @@ getValueType_, getValueInstance_, getValueIndex_, getValueCommandClass_
 
         '''
         return getValueFromType(self.manager,id)
+
+    def getValueAsBitSet(self, id, pos):
+        '''
+.. _getValueAsBool:
+
+Gets a value as a bool.
+
+:param id: The ID of a value.
+:type id: int
+:return: The value
+:rtype: bool
+:see: isValueSet_, getValue_, getValueAsByte_, getValueListItems_, \
+getValueListSelectionStr_ , getValueListSelectionNum_, \
+getValueAsFloat_, getValueAsShort_, getValueAsInt_, getValueAsString_, \
+getValueType_, getValueInstance_, getValueIndex_, getValueCommandClass_
+
+        '''
+
+        if values_map.find(id) == values_map.end():
+            return
+
+        value = values_map.at(id)
+        datatype = PyValueTypes[value.GetType()]
+
+        if datatype != "BitSet":
+            return
+
+        cdef bool type_bool
+        if self.manager.GetValueAsBitSet(value.at(id), pos, &type_bool):
+            return type_bool
 
     def getValueAsBool(self, id):
         '''
