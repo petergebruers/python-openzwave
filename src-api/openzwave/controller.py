@@ -25,6 +25,7 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
 import os, sys
+import traceback
 import six
 if six.PY3:
     from pydispatch import dispatcher
@@ -309,7 +310,10 @@ class ZWaveController(ZWaveObject):
         :rtype: str
 
         """
-        return self._network.manager.getLibraryTypeName(self._network.home_id)
+        try:
+            return self._network.manager.getLibraryTypeName(self._network.home_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def library_description(self):
@@ -331,7 +335,10 @@ class ZWaveController(ZWaveObject):
         :rtype: str
 
         """
-        return self._network.manager.getLibraryVersion(self._network.home_id)
+        try:
+            return self._network.manager.getLibraryVersion(self._network.home_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def python_library_flavor(self):
@@ -342,7 +349,10 @@ class ZWaveController(ZWaveObject):
         :rtype: str
 
         """
-        return self._network.manager.getPythonLibraryFlavor()
+        try:
+            return self._network.manager.getPythonLibraryFlavor()
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def python_library_version(self):
@@ -353,7 +363,10 @@ class ZWaveController(ZWaveObject):
         :rtype: str
 
         """
-        return self._network.manager.getPythonLibraryVersionNumber()
+        try:
+            return self._network.manager.getPythonLibraryVersionNumber()
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def python_library_config_version(self):
@@ -367,7 +380,7 @@ class ZWaveController(ZWaveObject):
         tversion = "Original %s" % self.library_version
         fversion = os.path.join(self.library_config_path, 'pyozw_config.version')
         if os.path.isfile(fversion):
-            with open(fversion, 'r') as f: 
+            with open(fversion, 'r') as f:
                 val = f.read()
             tversion = "Git %s" % val
         return tversion
@@ -381,7 +394,10 @@ class ZWaveController(ZWaveObject):
         :rtype: str
 
         """
-        return self._network.manager.getOzwLibraryVersion()
+        try:
+            return self._network.manager.getOzwLibraryVersion()
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def library_config_path(self):
@@ -462,7 +478,10 @@ class ZWaveController(ZWaveObject):
         :rtype: dict()
 
         """
-        return self._network.manager.getDriverStatistics(self.home_id)
+        try:
+            return self._network.manager.getDriverStatistics(self.home_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def get_stats_label(self, stat):
         """
@@ -546,7 +565,10 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.isPrimaryController(self.home_id)
+        try:
+            return self._network.manager.isPrimaryController(self.home_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_static_update_controller(self):
@@ -556,7 +578,10 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.isStaticUpdateController(self.home_id)
+        try:
+            return self._network.manager.isStaticUpdateController(self.home_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_bridge_controller(self):
@@ -566,7 +591,10 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.isBridgeController(self.home_id)
+        try:
+            return self._network.manager.isBridgeController(self.home_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def send_queue_count(self):
@@ -578,7 +606,10 @@ class ZWaveController(ZWaveObject):
 
         """
         if self.home_id is not None:
-            return self._network.manager.getSendQueueCount(self.home_id)
+            try:
+                return self._network.manager.getSendQueueCount(self.home_id)
+            except:
+                logger.error(traceback.format_exc())
         return -1
 
     def hard_reset(self):
@@ -598,12 +629,15 @@ class ZWaveController(ZWaveObject):
         self._network.state = self._network.STATE_RESETTED
         dispatcher.send(self._network.SIGNAL_NETWORK_RESETTED, \
             **{'network':self._network})
-        self._network.manager.resetController(self._network.home_id)
         try:
-            self.network.network_event.wait(5.0)
-        except AssertionError:
-            #For gevent AssertionError: Impossible to call blocking function in the event loop callback
-            pass
+            self._network.manager.resetController(self._network.home_id)
+            try:
+                self.network.network_event.wait(5.0)
+            except AssertionError:
+                #For gevent AssertionError: Impossible to call blocking function in the event loop callback
+                pass
+        except:
+            logger.error(traceback.format_exc())
 
     def soft_reset(self):
         """
@@ -611,7 +645,10 @@ class ZWaveController(ZWaveObject):
         Resets a controller without erasing its network configuration settings.
 
         """
-        self._network.manager.softResetController(self.home_id)
+        try:
+            self._network.manager.softResetController(self.home_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def create_new_primary(self):
         '''Create a new primary controller when old primary fails. Requires SUC.
@@ -627,7 +664,10 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s', 'create_new_primary')
-            return self._network.manager.createNewPrimary(self.home_id)
+            try:
+                return self._network.manager.createNewPrimary(self.home_id)
+            except:
+                logger.error(traceback.format_exc())
         else:
             logger.warning(u"Can't lock controller for command : %s", 'create_new_primary')
             return False
@@ -648,7 +688,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s', 'transfer_primary_role')
-            return self._network.manager.transferPrimaryRole(self.home_id)
+            try:
+                return self._network.manager.transferPrimaryRole(self.home_id)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'create_new_primary')
             return False
@@ -667,7 +711,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s', 'receive_configuration')
-            return self._network.manager.receiveConfiguration(self.home_id)
+            try:
+                return self._network.manager.receiveConfiguration(self.home_id)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'receive_configuration')
             return False
@@ -689,7 +737,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s, : secure : %s', 'add_node', doSecurity)
-            return self._network.manager.addNode(self.home_id, doSecurity)
+            try:
+                return self._network.manager.addNode(self.home_id, doSecurity)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'add_node')
             return False
@@ -711,7 +763,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s', 'remove_node')
-            return self._network.manager.removeNode(self.home_id)
+            try:
+                return self._network.manager.removeNode(self.home_id)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'remove_node')
             return False
@@ -737,7 +793,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s, : node : %s', 'remove_failed_node', nodeid)
-            return self._network.manager.removeFailedNode(self.home_id, nodeid)
+            try:
+                return self._network.manager.removeFailedNode(self.home_id, nodeid)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'remove_failed_node')
             return False
@@ -758,7 +818,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s, : node : %s', 'has_node_failed', nodeid)
-            return self._network.manager.hasNodeFailed(self.home_id, nodeid)
+            try:
+                return self._network.manager.hasNodeFailed(self.home_id, nodeid)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'has_node_failed')
             return False
@@ -779,7 +843,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s, : node : %s', 'request_node_neighbor_update', nodeid)
-            return self._network.manager.requestNodeNeighborUpdate(self.home_id, nodeid)
+            try:
+                return self._network.manager.requestNodeNeighborUpdate(self.home_id, nodeid)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'request_node_neighbor_update')
             return False
@@ -800,7 +868,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s, : node : %s', 'assign_return_route', nodeid)
-            return self._network.manager.assignReturnRoute(self.home_id, nodeid)
+            try:
+                return self._network.manager.assignReturnRoute(self.home_id, nodeid)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'assign_return_route')
             return False
@@ -821,7 +893,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s, : node : %s', 'delete_all_return_routes', nodeid)
-            return self._network.manager.deleteAllReturnRoutes(self.home_id, nodeid)
+            try:
+                return self._network.manager.deleteAllReturnRoutes(self.home_id, nodeid)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'delete_all_return_routes')
             return False
@@ -841,7 +917,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s, : node : %s', 'send_node_information', nodeid)
-            return self._network.manager.sendNodeInformation(self.home_id, nodeid)
+            try:
+                return self._network.manager.sendNodeInformation(self.home_id, nodeid)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'send_node_information')
 
@@ -865,7 +945,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s, : node : %s', 'replace_failed_node', nodeid)
-            return self._network.manager.replaceFailedNode(self.home_id, nodeid)
+            try:
+                return self._network.manager.replaceFailedNode(self.home_id, nodeid)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'replace_failed_node')
 
@@ -885,7 +969,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s, : node : %s', 'request_network_update', nodeid)
-            return self._network.manager.requestNetworkUpdate(self.home_id, nodeid)
+            try:
+                return self._network.manager.requestNetworkUpdate(self.home_id, nodeid)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'request_network_update')
             return False
@@ -904,7 +992,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s, : node : %s', 'replication_send', nodeid)
-            return self._network.manager.replicationSend(self.home_id, nodeid)
+            try:
+                return self._network.manager.replicationSend(self.home_id, nodeid)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'replication_send')
             return False
@@ -927,7 +1019,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s, : node : %s, button : %s', 'create_button', nodeid, buttonid)
-            return self._network.manager.createButton(self.home_id, nodeid, buttonid)
+            try:
+                return self._network.manager.createButton(self.home_id, nodeid, buttonid)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'create_button')
             return False
@@ -950,7 +1046,11 @@ class ZWaveController(ZWaveObject):
         '''
         if self._lock_controller():
             logger.debug(u'Send controller command : %s, : node : %s, button : %s', 'delete_button', nodeid, buttonid)
-            return self._network.manager.deleteButton(self.home_id, nodeid, buttonid)
+            try:
+                return self._network.manager.deleteButton(self.home_id, nodeid, buttonid)
+            except:
+                logger.error(traceback.format_exc())
+                return False
         else:
             logger.warning(u"Can't lock controller for command : %s", 'delete_button')
             return False
@@ -1052,7 +1152,11 @@ class ZWaveController(ZWaveObject):
         except threading.ThreadError:
             pass
         if self.home_id is not None:
-            return self._network.manager.cancelControllerCommand(self.home_id)
+            try:
+                return self._network.manager.cancelControllerCommand(self.home_id)
+            except:
+                logger.error(traceback.format_exc())
+
         return False
 
     def kill_command(self):
@@ -1064,7 +1168,10 @@ class ZWaveController(ZWaveObject):
         except threading.ThreadError:
             pass
         if self.home_id is not None:
-            return self._network.manager.cancelControllerCommand(self.home_id)
+            try:
+                return self._network.manager.cancelControllerCommand(self.home_id)
+            except:
+                logger.error(traceback.format_exc())
         return False
 
     def to_dict(self, extras=['all']):
@@ -1099,8 +1206,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_SENDNODEINFORMATION, self.zwcallback, nodeId=node_id)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_SENDNODEINFORMATION, self.zwcallback, nodeId=node_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_replication_send(self, high_power=False):
@@ -1115,8 +1225,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_REPLICATIONSEND, self.zwcallback, highPower=high_power)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_REPLICATIONSEND, self.zwcallback, highPower=high_power)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_request_network_update(self):
@@ -1127,8 +1240,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_REQUESTNETWORKUPDATE, self.zwcallback)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_REQUESTNETWORKUPDATE, self.zwcallback)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_add_device(self, high_power=False):
@@ -1144,8 +1260,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_ADDDEVICE, self.zwcallback, highPower=high_power)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_ADDDEVICE, self.zwcallback, highPower=high_power)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_remove_device(self, high_power=False):
@@ -1161,8 +1280,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_REMOVEDEVICE, self.zwcallback, highPower=high_power)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_REMOVEDEVICE, self.zwcallback, highPower=high_power)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_remove_failed_node(self, node_id):
@@ -1178,8 +1300,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_REMOVEFAILEDNODE, self.zwcallback, nodeId=node_id)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_REMOVEFAILEDNODE, self.zwcallback, nodeId=node_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_has_node_failed(self, node_id):
@@ -1192,8 +1317,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_HASNODEFAILED, self.zwcallback, nodeId=node_id)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_HASNODEFAILED, self.zwcallback, nodeId=node_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_replace_failed_node(self, node_id):
@@ -1207,8 +1335,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_REPLACEFAILEDNODE, self.zwcallback, nodeId=node_id)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_REPLACEFAILEDNODE, self.zwcallback, nodeId=node_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_request_node_neigbhor_update(self, node_id):
@@ -1222,8 +1353,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_REQUESTNODENEIGHBORUPDATE, self.zwcallback, nodeId=node_id)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_REQUESTNODENEIGHBORUPDATE, self.zwcallback, nodeId=node_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_create_new_primary(self):
@@ -1234,8 +1368,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_CREATENEWPRIMARY, self.zwcallback)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_CREATENEWPRIMARY, self.zwcallback)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_transfer_primary_role(self, high_power=False):
@@ -1252,8 +1389,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_TRANSFERPRIMARYROLE, self.zwcallback, highPower=high_power)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_TRANSFERPRIMARYROLE, self.zwcallback, highPower=high_power)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_receive_configuration(self):
@@ -1264,8 +1404,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_RECEIVECONFIGURATION, self.zwcallback)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_RECEIVECONFIGURATION, self.zwcallback)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_assign_return_route(self, from_node_id, to_node_id):
@@ -1280,8 +1423,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_ASSIGNRETURNROUTE, self.zwcallback, nodeId=from_node_id, arg=to_node_id)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_ASSIGNRETURNROUTE, self.zwcallback, nodeId=from_node_id, arg=to_node_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_delete_all_return_routes(self, node_id):
@@ -1294,8 +1440,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_DELETEALLRETURNROUTES, self.zwcallback, nodeId=node_id)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_DELETEALLRETURNROUTES, self.zwcallback, nodeId=node_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_create_button(self, node_id, arg=0):
@@ -1310,8 +1459,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_CREATEBUTTON, self.zwcallback, nodeId=node_id, arg=arg)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_CREATEBUTTON, self.zwcallback, nodeId=node_id, arg=arg)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def begin_command_delete_button(self, node_id, arg=0):
@@ -1326,8 +1478,11 @@ class ZWaveController(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.beginControllerCommand(self.home_id, \
-            self.CMD_DELETEBUTTON, self.zwcallback, nodeId=node_id, arg=arg)
+        try:
+            return self._network.manager.beginControllerCommand(self.home_id, \
+                self.CMD_DELETEBUTTON, self.zwcallback, nodeId=node_id, arg=arg)
+        except:
+            logger.error(traceback.format_exc())
 
     @deprecated
     def zwcallback(self, args):
@@ -1378,7 +1533,7 @@ class ZWaveController(ZWaveObject):
                 shutil.rmtree(dest)
             except Exception:
                 pass
-                
+
         if os.path.isdir(self.library_config_path):
             #Try to remove old config
             try:
@@ -1392,8 +1547,8 @@ class ZWaveController(ZWaveObject):
             logger.exception("Can't copy to %s", self.library_config_path)
 
         try:
-            with open(os.path.join(self.library_config_path, 'pyozw_config.version'), 'w') as f: 
-                f.write(time.strftime("%Y-%m-%d %H:%M")) 
+            with open(os.path.join(self.library_config_path, 'pyozw_config.version'), 'w') as f:
+                f.write(time.strftime("%Y-%m-%d %H:%M"))
         except Exception:
             logger.exception("Can't update %s", os.path.join(self.library_config_path, 'pyozw_config.version'))
         shutil.rmtree(dest)
@@ -1418,6 +1573,6 @@ class ZWaveController(ZWaveObject):
         zip_ref.extractall(dest)
         zip_ref.close()
         os.system("cp -rf %s %s"%(os.path.join(dest, 'open-zwave-master', 'config'), self.library_config_path))
-        with open(os.path.join(self.library_config_path, 'pyozw_config.version'), 'w') as f: 
-            f.write(time.strftime("%Y-%m-%d %H:%M")) 
+        with open(os.path.join(self.library_config_path, 'pyozw_config.version'), 'w') as f:
+            f.write(time.strftime("%Y-%m-%d %H:%M"))
 

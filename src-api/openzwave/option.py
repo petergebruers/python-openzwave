@@ -24,6 +24,7 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
 import os
+import traceback
 from platform import system as platform_system
 
 import libopenzwave
@@ -71,15 +72,19 @@ class ZWaveOption(libopenzwave.PyOptions):
                     if os.access(device, os.R_OK) and os.access(device, os.W_OK):
                         self._device = device
                     else:
-                        import sys, traceback
+                        import sys
                         raise ZWaveException(u"Can't write to device %s : %s" % (device, traceback.format_exception(*sys.exc_info())))
                 else:
-                    import sys, traceback
+                    import sys
                     raise ZWaveException(u"Can't find device %s : %s" % (device, traceback.format_exception(*sys.exc_info())))
             except:
-                import sys, traceback
+                import sys
                 raise ZWaveException(u"Error when retrieving device %s : %s" % (device, traceback.format_exception(*sys.exc_info())))
-        libopenzwave.PyOptions.__init__(self, config_path=config_path, user_path=user_path, cmd_line=cmd_line)
+
+        try:
+            libopenzwave.PyOptions.__init__(self, config_path=config_path, user_path=user_path, cmd_line=cmd_line)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_log_file(self, logfile):
         """
@@ -89,7 +94,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type logfile: str
 
         """
-        return self.addOptionString("LogFileName", logfile, False)
+        try:
+            return self.addOptionString("LogFileName", logfile, False)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_logging(self, status):
         """
@@ -99,7 +107,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type status: bool
 
         """
-        return self.addOptionBool("Logging", status)
+        try:
+            return self.addOptionBool("Logging", status)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_append_log_file(self, status):
         """
@@ -109,7 +120,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type status: bool
 
         """
-        return self.addOptionBool("AppendLogFile", status)
+        try:
+            return self.addOptionBool("AppendLogFile", status)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_console_output(self, status):
         """
@@ -119,7 +133,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type status: bool
 
         """
-        return self.addOptionBool("ConsoleOutput", status)
+        try:
+            return self.addOptionBool("ConsoleOutput", status)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_save_log_level(self, level):
         """
@@ -141,7 +158,10 @@ class ZWaveOption(libopenzwave.PyOptions):
             * 'Internal':"Used only within the log class (uses existing timestamp, etc.)"
 
         """
-        return self.addOptionInt("SaveLogLevel", PyLogLevels[level]['value'])
+        try:
+            return self.addOptionInt("SaveLogLevel", PyLogLevels[level]['value'])
+        except:
+            logger.error(traceback.format_exc())
 
     def set_queue_log_level(self, level):
         """
@@ -163,7 +183,10 @@ class ZWaveOption(libopenzwave.PyOptions):
             * 'Internal':"Used only within the log class (uses existing timestamp, etc.)"
 
         """
-        return self.addOptionInt("QueueLogLevel", PyLogLevels[level])
+        try:
+            return self.addOptionInt("QueueLogLevel", PyLogLevels[level])
+        except:
+            logger.error(traceback.format_exc())
 
     def set_dump_trigger_level(self, level):
         """
@@ -185,7 +208,10 @@ class ZWaveOption(libopenzwave.PyOptions):
             * 'Internal':"Used only within the log class (uses existing timestamp, etc.)"
 
         """
-        return self.addOptionInt("DumpTriggerLevel", PyLogLevels[level])
+        try:
+            return self.addOptionInt("DumpTriggerLevel", PyLogLevels[level])
+        except:
+            logger.error(traceback.format_exc())
 
     def set_associate(self, status):
         """
@@ -195,7 +221,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type status: bool
 
         """
-        return self.addOptionBool("Associate", status)
+        try:
+            return self.addOptionBool("Associate", status)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_exclude(self, commandClass):
         """
@@ -205,7 +234,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type commandClass: str
 
         """
-        return self.addOptionString("Exclude", commandClass, True)
+        try:
+            return self.addOptionString("Exclude", commandClass, True)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_include(self, commandClass):
         """
@@ -215,7 +247,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type commandClass: str
 
         """
-        return self.addOptionString("Include", commandClass, True)
+        try:
+            return self.addOptionString("Include", commandClass, True)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_notify_transactions(self, status):
         """
@@ -225,7 +260,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type status: bool
 
         """
-        return self.addOptionBool("NotifyTransactions", status)
+        try:
+            return self.addOptionBool("NotifyTransactions", status)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_interface(self, port):
         """
@@ -235,7 +273,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type port: str
 
         """
-        return self.addOptionString("Interface", port, True)
+        try:
+            return self.addOptionString("Interface", port, True)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_save_configuration(self, status):
         """
@@ -245,7 +286,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type status: bool
 
         """
-        return self.addOptionBool("SaveConfiguration", status)
+        try:
+            return self.addOptionBool("SaveConfiguration", status)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_driver_max_attempts(self, attempts):
         """
@@ -255,7 +299,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type attempts: int
 
         """
-        return self.addOptionInt("DriverMaxAttempts", attempts)
+        try:
+            return self.addOptionInt("DriverMaxAttempts", attempts)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_poll_interval(self, interval):
         """
@@ -265,7 +312,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type interval: int
 
         """
-        return self.addOptionInt("PollInterval", interval)
+        try:
+            return self.addOptionInt("PollInterval", interval)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_interval_between_polls(self, status):
         """
@@ -275,7 +325,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type status: bool
 
         """
-        return self.addOptionBool("IntervalBetweenPolls", status)
+        try:
+            return self.addOptionBool("IntervalBetweenPolls", status)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_suppress_value_refresh(self, status):
         """
@@ -285,7 +338,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type status: bool
 
         """
-        return self.addOptionBool("SuppressValueRefresh", status)
+        try:
+            return self.addOptionBool("SuppressValueRefresh", status)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_security_strategy(self, strategy='SUPPORTED'):
         """
@@ -295,7 +351,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type strategy: str
 
         """
-        return self.addOptionString("SecurityStrategy", strategy, False)
+        try:
+            return self.addOptionString("SecurityStrategy", strategy, False)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_custom_secured_cc(self, custom_cc='0x62,0x4c,0x63'):
         """
@@ -305,7 +364,10 @@ class ZWaveOption(libopenzwave.PyOptions):
         :type custom_cc: str
 
         """
-        return self.addOptionString("CustomSecuredCC", custom_cc, False)
+        try:
+            return self.addOptionString("CustomSecuredCC", custom_cc, False)
+        except:
+            logger.error(traceback.format_exc())
 
 
     @property

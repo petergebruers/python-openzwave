@@ -24,6 +24,7 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
 import sys
+import traceback
 from libopenzwave import PyStatNode
 from openzwave.object import ZWaveObject
 from openzwave.group import ZWaveGroup
@@ -104,7 +105,12 @@ class ZWaveNode(ZWaveObject,
         :rtype: str
 
         """
-        return self._network.manager.getNodeName(self.home_id, self.object_id)
+
+        try:
+            return self._network.manager.getNodeName(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
+
 
     @name.setter
     def name(self, value):
@@ -115,7 +121,10 @@ class ZWaveNode(ZWaveObject,
         :type value: str
 
         """
-        self._network.manager.setNodeName(self.home_id, self.object_id, value)
+        try:
+            self._network.manager.setNodeName(self.home_id, self.object_id, value)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def location(self):
@@ -125,7 +134,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: str
 
         """
-        return self._network.manager.getNodeLocation(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeLocation(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @location.setter
     def location(self, value):
@@ -136,7 +148,10 @@ class ZWaveNode(ZWaveObject,
         :type value: str
 
         """
-        self._network.manager.setNodeLocation(self.home_id, self.object_id, value)
+        try:
+            self._network.manager.setNodeLocation(self.home_id, self.object_id, value)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def product_name(self):
@@ -146,7 +161,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: str
 
         """
-        return self._network.manager.getNodeProductName(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeProductName(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @product_name.setter
     def product_name(self, value):
@@ -157,7 +175,10 @@ class ZWaveNode(ZWaveObject,
         :type value: str
 
         """
-        self._network.manager.setNodeProductName(self.home_id, self.object_id, value)
+        try:
+            self._network.manager.setNodeProductName(self.home_id, self.object_id, value)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def product_type(self):
@@ -167,7 +188,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: str
 
         """
-        return self._network.manager.getNodeProductType(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeProductType(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def product_id(self):
@@ -177,7 +201,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: str
 
         """
-        return self._network.manager.getNodeProductId(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeProductId(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def device_type(self):
@@ -187,7 +214,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: str
 
         """
-        return self._network.manager.getNodeDeviceTypeString(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeDeviceTypeString(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def role(self):
@@ -197,7 +227,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: str
 
         """
-        return self._network.manager.getNodeRoleString(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeRoleString(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def to_dict(self, extras=['all']):
         """
@@ -265,7 +298,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: set()
 
         """
-        return self._network.manager.getNodeNeighbors(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeNeighbors(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def num_groups(self):
@@ -275,7 +311,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: int
 
         """
-        return self._network.manager.getNumGroups(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNumGroups(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def get_max_associations(self, groupidx):
         """
@@ -286,7 +325,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: int
 
         """
-        return self._network.manager.getMaxAssociations(self.home_id, self.node_id, groupidx)
+        try:
+            return self._network.manager.getMaxAssociations(self.home_id, self.node_id, groupidx)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def groups(self):
@@ -335,9 +377,12 @@ class ZWaveNode(ZWaveObject,
 
         """
         command_classes = set()
-        for cls in self._network.manager.COMMAND_CLASS_DESC:
-            if self._network.manager.getNodeClassInformation(self.home_id, self.object_id, cls):
-                command_classes.add(cls)
+        try:
+            for cls in self._network.manager.COMMAND_CLASS_DESC:
+                if self._network.manager.getNodeClassInformation(self.home_id, self.object_id, cls):
+                    command_classes.add(cls)
+        except:
+            logger.error(traceback.format_exc())
         return command_classes
 
     @property
@@ -510,7 +555,10 @@ class ZWaveNode(ZWaveObject,
         :type value_id: int
 
         """
-        return self._network.manager.refreshValue(value_id)
+        try:
+            return self._network.manager.refreshValue(value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def remove_value(self, value_id):
         """
@@ -567,7 +615,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: str
 
         """
-        return self._network.manager.getNodeManufacturerId(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeManufacturerId(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def manufacturer_name(self):
@@ -577,7 +628,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: str
 
         """
-        return self._network.manager.getNodeManufacturerName(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeManufacturerName(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @manufacturer_name.setter
     def manufacturer_name(self, value):
@@ -588,7 +642,10 @@ class ZWaveNode(ZWaveObject,
         :type value: str
 
         """
-        self._network.manager.setNodeManufacturerName(self.home_id, self.object_id, value)
+        try:
+            self._network.manager.setNodeManufacturerName(self.home_id, self.object_id, value)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def generic(self):
@@ -598,7 +655,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: int
 
         """
-        return self._network.manager.getNodeGeneric(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeGeneric(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def basic(self):
@@ -608,7 +668,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: int
 
         """
-        return self._network.manager.getNodeBasic(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeBasic(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def specific(self):
@@ -619,7 +682,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: int
 
         """
-        return self._network.manager.getNodeSpecific(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeSpecific(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def security(self):
@@ -630,7 +696,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: int
 
         """
-        return self._network.manager.getNodeSecurity(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeSecurity(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def version(self):
@@ -641,7 +710,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: int
 
         """
-        return self._network.manager.getNodeVersion(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeVersion(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_listening_device(self):
@@ -651,7 +723,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: bool
 
         """
-        return self._network.manager.isNodeListeningDevice(self.home_id, self.object_id)
+        try:
+            return self._network.manager.isNodeListeningDevice(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_beaming_device(self):
@@ -661,7 +736,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: bool
 
         """
-        return self._network.manager.isNodeBeamingDevice(self.home_id, self.object_id)
+        try:
+            return self._network.manager.isNodeBeamingDevice(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_frequent_listening_device(self):
@@ -671,7 +749,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: bool
 
         """
-        return self._network.manager.isNodeFrequentListeningDevice(self.home_id, self.object_id)
+        try:
+            return self._network.manager.isNodeFrequentListeningDevice(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_security_device(self):
@@ -681,7 +762,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: bool
 
         """
-        return self._network.manager.isNodeSecurityDevice(self.home_id, self.object_id)
+        try:
+            return self._network.manager.isNodeSecurityDevice(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_routing_device(self):
@@ -691,7 +775,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: bool
 
         """
-        return self._network.manager.isNodeRoutingDevice(self.home_id, self.object_id)
+        try:
+            return self._network.manager.isNodeRoutingDevice(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_zwave_plus(self):
@@ -701,7 +788,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: bool
 
         """
-        return self._network.manager.isNodeZWavePlus(self.home_id, self.object_id)
+        try:
+            return self._network.manager.isNodeZWavePlus(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_locked(self):
@@ -766,7 +856,10 @@ class ZWaveNode(ZWaveObject,
         Get the maximum baud rate of a node
 
         """
-        return self._network.manager.getNodeMaxBaudRate(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeMaxBaudRate(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def heal(self, upNodeRoute=False):
         """
@@ -782,8 +875,13 @@ class ZWaveNode(ZWaveObject,
         if self.is_awake == False:
             logger.warning(u'Node state must a minimum set to awake')
             return False
-        self._network.manager.healNetworkNode(self.home_id, self.object_id, upNodeRoute)
-        return True
+        try:
+            self._network.manager.healNetworkNode(self.home_id, self.object_id, upNodeRoute)
+            return True
+        except:
+            logger.error(traceback.format_exc())
+            return False
+
 
     def test(self, count=1):
         """
@@ -793,7 +891,10 @@ class ZWaveNode(ZWaveObject,
         :type count: int
 
         """
-        self._network.manager.testNetworkNode(self.home_id, self.object_id, count)
+        try:
+            self._network.manager.testNetworkNode(self.home_id, self.object_id, count)
+        except:
+            logger.error(traceback.format_exc())
 
     def assign_return_route(self):
         '''Ask the to update its update its Return Route to the Controller
@@ -808,7 +909,10 @@ class ZWaveNode(ZWaveObject,
 
         '''
         logger.debug('assign_return_route for node [%s]', self.object_id)
-        return self._network.controller.assign_return_route(self.object_id)
+        try:
+            return self._network.controller.assign_return_route(self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def refresh_info(self):
         """
@@ -825,7 +929,10 @@ class ZWaveNode(ZWaveObject,
 
         """
         logger.debug(u'refresh_info for node [%s]', self.object_id)
-        return self._network.manager.refreshNodeInfo(self.home_id, self.object_id)
+        try:
+            return self._network.manager.refreshNodeInfo(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def request_state(self):
         """
@@ -837,7 +944,10 @@ class ZWaveNode(ZWaveObject,
 
         """
         logger.debug(u'request_state for node [%s]', self.object_id)
-        return self._network.manager.requestNodeState(self.home_id, self.object_id)
+        try:
+            return self._network.manager.requestNodeState(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def send_information(self):
         '''Send a NIF frame from the Controller to a Node.
@@ -851,7 +961,10 @@ class ZWaveNode(ZWaveObject,
 
         '''
         logger.debug(u'send_information for node [%s]', self.object_id)
-        return self._network.controller.send_node_information(self.object_id)
+        try:
+            return self._network.controller.send_node_information(self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def network_update(self):
         '''Update the controller with network information from the SUC/SIS.
@@ -864,7 +977,10 @@ class ZWaveNode(ZWaveObject,
 
         '''
         logger.debug(u'network_update for node [%s]', self.object_id)
-        return self._network.controller.request_network_update(self.object_id)
+        try:
+            return self._network.controller.request_network_update(self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def neighbor_update(self):
         '''Ask a Node to update its Neighbor Tables
@@ -879,7 +995,10 @@ class ZWaveNode(ZWaveObject,
 
         '''
         logger.debug(u'neighbor_update for node [%s]', self.object_id)
-        return self._network.controller.request_node_neighbor_update(self.object_id)
+        try:
+            return self._network.controller.request_node_neighbor_update(self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def create_button(self, buttonid):
         '''Create a handheld button id.
@@ -896,7 +1015,10 @@ class ZWaveNode(ZWaveObject,
 
         '''
         logger.debug(u'create_button for node [%s]', self.object_id)
-        return self._network.controller.create_button(self.object_id, buttonid)
+        try:
+            return self._network.controller.create_button(self.object_id, buttonid)
+        except:
+            logger.error(traceback.format_exc())
 
     def delete_button(self, buttonid):
         '''Delete a handheld button id.
@@ -913,7 +1035,10 @@ class ZWaveNode(ZWaveObject,
 
         '''
         logger.debug(u'delete_button for node [%s]', self.object_id)
-        return self._network.controller.delete_button(self.object_id, buttonid)
+        try:
+            return self._network.controller.delete_button(self.object_id, buttonid)
+        except:
+            logger.error(traceback.format_exc())
 
     def request_all_config_params(self):
         """
@@ -921,7 +1046,10 @@ class ZWaveNode(ZWaveObject,
 
         """
         logger.debug(u'Requesting config params for node [%s]', self.object_id)
-        self._network.manager.requestAllConfigParams(self.home_id, self.object_id)
+        try:
+            self._network.manager.requestAllConfigParams(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def request_config_param(self, param):
         """
@@ -942,7 +1070,10 @@ class ZWaveNode(ZWaveObject,
 
         """
         logger.debug(u'Requesting config param %s for node [%s]', param, self.object_id)
-        self._network.manager.requestConfigParam(self.home_id, self.object_id, param)
+        try:
+            self._network.manager.requestConfigParam(self.home_id, self.object_id, param)
+        except:
+            logger.error(traceback.format_exc())
 
     def set_config_param(self, param, value, size=2):
         """
@@ -965,7 +1096,10 @@ class ZWaveNode(ZWaveObject,
 
         """
         logger.debug(u'Set config param %s for node [%s]', param, self.object_id)
-        return self._network.manager.setConfigParam(self.home_id, self.object_id, param, value, size)
+        try:
+            return self._network.manager.setConfigParam(self.home_id, self.object_id, param, value, size)
+        except:
+            logger.error(traceback.format_exc())
 
 #    def setNodeOn(self, node):
 #        """
@@ -993,8 +1127,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: bool
 
         """
-
-        return self._network.manager.isNodeAwake(self.home_id, self.object_id)
+        try:
+            return self._network.manager.isNodeAwake(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_failed(self):
@@ -1004,8 +1140,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: bool
 
         """
-
-        return self._network.manager.isNodeFailed(self.home_id, self.object_id)
+        try:
+            return self._network.manager.isNodeFailed(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def query_stage(self):
@@ -1015,7 +1153,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: string
 
         """
-        return self._network.manager.getNodeQueryStage(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeQueryStage(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_ready(self):
@@ -1047,7 +1188,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: bool
 
         """
-        return self._network.manager.isNodeInfoReceived(self.home_id, self.object_id)
+        try:
+            return self._network.manager.isNodeInfoReceived(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def type(self):
@@ -1055,7 +1199,10 @@ class ZWaveNode(ZWaveObject,
         Get a human-readable label describing the node
         :rtype: str
         """
-        return self._network.manager.getNodeType(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeType(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def stats(self):
@@ -1084,7 +1231,10 @@ class ZWaveNode(ZWaveObject,
         :rtype: dict()
 
         """
-        return self._network.manager.getNodeStatistics(self.home_id, self.object_id)
+        try:
+            return self._network.manager.getNodeStatistics(self.home_id, self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def get_stats_label(self, stat):
         """

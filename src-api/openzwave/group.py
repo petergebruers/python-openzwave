@@ -23,6 +23,7 @@ You should have received a copy of the GNU General Public License
 along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
+import traceback
 from openzwave.object import ZWaveObject
 
 # Set default logging handler to avoid "No handler found" warnings.
@@ -89,7 +90,10 @@ class ZWaveGroup(ZWaveObject):
         :rtype: int
 
         """
-        return self._network.manager.getGroupLabel(self.home_id, self._node_id, self.index)
+        try:
+            return self._network.manager.getGroupLabel(self.home_id, self._node_id, self.index)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def max_associations(self):
@@ -99,7 +103,10 @@ class ZWaveGroup(ZWaveObject):
         :rtype: int
 
         """
-        return self._network.manager.getMaxAssociations(self.home_id, self._node_id, self.index)
+        try:
+            return self._network.manager.getMaxAssociations(self.home_id, self._node_id, self.index)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def associations(self):
@@ -109,7 +116,10 @@ class ZWaveGroup(ZWaveObject):
         :rtype: set()
 
         """
-        return self._network.manager.getAssociations(self.home_id, self._node_id, self.index)
+        try:
+            return self._network.manager.getAssociations(self.home_id, self._node_id, self.index)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def associations_instances(self):
@@ -120,7 +130,10 @@ class ZWaveGroup(ZWaveObject):
         :rtype: set() of tuples (nodeid,instanceid)
 
         """
-        return self._network.manager.getAssociationsInstances(self.home_id, self._node_id, self.index)
+        try:
+            return self._network.manager.getAssociationsInstances(self.home_id, self._node_id, self.index)
+        except:
+            logger.error(traceback.format_exc())
 
     def add_association(self, target_node_id, instance=0x00):
         """
@@ -138,7 +151,10 @@ class ZWaveGroup(ZWaveObject):
         :type instance: int
 
         """
-        self._network.manager.addAssociation(self.home_id, self._node_id, self.index, target_node_id, instance)
+        try:
+            self._network.manager.addAssociation(self.home_id, self._node_id, self.index, target_node_id, instance)
+        except:
+            logger.error(traceback.format_exc())
 
     def remove_association(self, target_node_id, instance=0x00):
         """
@@ -156,7 +172,10 @@ class ZWaveGroup(ZWaveObject):
         :type instance: int
 
         """
-        self._network.manager.removeAssociation(self._network.home_id, self._node_id, self.index, target_node_id, instance)
+        try:
+            self._network.manager.removeAssociation(self._network.home_id, self._node_id, self.index, target_node_id, instance)
+        except:
+            logger.error(traceback.format_exc())
 
     def to_dict(self, extras=['all']):
         """

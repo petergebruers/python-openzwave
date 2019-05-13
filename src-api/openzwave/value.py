@@ -24,6 +24,7 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
 from six import string_types
+import traceback
 from openzwave.object import ZWaveObject
 
 # Set default logging handler to avoid "No handler found" warnings.
@@ -137,7 +138,10 @@ class ZWaveValue(ZWaveObject):
 
         :rtype: str
         """
-        return self._network.manager.getValueLabel(self.value_id)
+        try:
+            return self._network.manager.getValueLabel(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @label.setter
     def label(self, value):
@@ -147,7 +151,10 @@ class ZWaveValue(ZWaveObject):
         :param value: The new label value
         :type value: str
         """
-        self._network.manager.setValueLabel(self.value_id, value)
+        try:
+            self._network.manager.setValueLabel(self.value_id, value)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def help(self):
@@ -156,7 +163,10 @@ class ZWaveValue(ZWaveObject):
 
         :rtype: str
         """
-        return self._network.manager.getValueHelp(self.value_id)
+        try:
+            return self._network.manager.getValueHelp(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @help.setter
     def help(self, value):
@@ -167,7 +177,10 @@ class ZWaveValue(ZWaveObject):
         :type value: str
 
         """
-        self._network.manager.setValueHelp(self.value_id, value)
+        try:
+            self._network.manager.setValueHelp(self.value_id, value)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def units(self):
@@ -177,7 +190,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: str
 
         """
-        return self._network.manager.getValueUnits(self.value_id)
+        try:
+            return self._network.manager.getValueUnits(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @units.setter
     def units(self, value):
@@ -188,7 +204,10 @@ class ZWaveValue(ZWaveObject):
         :type value: str
 
         """
-        self._network.manager.setValueUnits(self.value_id, value)
+        try:
+            self._network.manager.setValueUnits(self.value_id, value)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def max(self):
@@ -198,7 +217,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: int
 
         """
-        return self._network.manager.getValueMax(self.value_id)
+        try:
+            return self._network.manager.getValueMax(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def min(self):
@@ -208,7 +230,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: int
 
         """
-        return self._network.manager.getValueMin(self.value_id)
+        try:
+            return self._network.manager.getValueMin(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def type(self):
@@ -221,7 +246,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: str
 
         """
-        return self._network.manager.getValueType(self.value_id)
+        try:
+            return self._network.manager.getValueType(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def genre(self):
@@ -234,7 +262,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: str
 
         """
-        return self._network.manager.getValueGenre(self.value_id)
+        try:
+            return self._network.manager.getValueGenre(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def index(self):
@@ -248,7 +279,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: int
 
         """
-        return self._network.manager.getValueIndex(self.value_id)
+        try:
+            return self._network.manager.getValueIndex(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def instance(self):
@@ -261,7 +295,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: int
 
         """
-        return self._network.manager.getValueInstance(self.value_id)
+        try:
+            return self._network.manager.getValueInstance(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def data(self):
@@ -272,7 +309,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: depending of the type of the value
 
         """
-        return self._network.manager.getValue(self.value_id)
+        try:
+            return self._network.manager.getValue(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @data.setter
     def data(self, value):
@@ -289,7 +329,10 @@ class ZWaveValue(ZWaveObject):
         :type value:
 
         """
-        self._network.manager.setValue(self.value_id, value)
+        try:
+            self._network.manager.setValue(self.value_id, value)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def data_as_string(self):
@@ -299,7 +342,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: str
 
         """
-        return self._network.manager.getValueAsString(self.value_id)
+        try:
+            return self._network.manager.getValueAsString(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def data_items(self):
@@ -327,7 +373,11 @@ class ZWaveValue(ZWaveObject):
         elif self.type == "Button":
             return "True or False"
         elif self.type == "List":
-            return self._network.manager.getValueListItems(self.value_id)
+            try:
+                return self._network.manager.getValueListItems(self.value_id)
+            except:
+                logger.error(traceback.format_exc())
+                return []
         else:
             return "Unknown"
 
@@ -423,7 +473,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.isValueSet(self.value_id)
+        try:
+            return self._network.manager.isValueSet(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_read_only(self):
@@ -434,7 +487,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.isValueReadOnly(self.value_id)
+        try:
+            return self._network.manager.isValueReadOnly(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_write_only(self):
@@ -445,7 +501,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.isValueWriteOnly(self.value_id)
+        try:
+            return self._network.manager.isValueWriteOnly(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def enable_poll(self, intensity=1):
         """
@@ -457,7 +516,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.enablePoll(self.value_id, intensity)
+        try:
+            return self._network.manager.enablePoll(self.value_id, intensity)
+        except:
+            logger.error(traceback.format_exc())
 
     def disable_poll(self):
         """
@@ -467,7 +529,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.disablePoll(self.value_id)
+        try:
+            return self._network.manager.disablePoll(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def poll_intensity(self):
@@ -479,7 +544,10 @@ class ZWaveValue(ZWaveObject):
 
         """
         #always ask to manager to get poll intensity
-        return self._network.manager.getPollIntensity(self.value_id)
+        try:
+            return self._network.manager.getPollIntensity(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def is_polled(self):
@@ -489,7 +557,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.isPolled(self.value_id)
+        try:
+            return self._network.manager.isPolled(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def command_class(self):
@@ -500,7 +571,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: int
 
         """
-        return self._network.manager.getValueCommandClass(self.value_id)
+        try:
+            return self._network.manager.getValueCommandClass(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def refresh(self):
         """
@@ -510,7 +584,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.refreshValue(self.value_id)
+        try:
+            return self._network.manager.refreshValue(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def precision(self):
@@ -521,7 +598,10 @@ class ZWaveValue(ZWaveObject):
         :rtype: int
 
         """
-        return self._network.manager.getValueFloatPrecision(self.value_id)
+        try:
+            return self._network.manager.getValueFloatPrecision(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def is_change_verified(self):
         """
@@ -529,7 +609,10 @@ class ZWaveValue(ZWaveObject):
         If so, the library will immediately refresh the value a second time whenever a change is observed.
         This helps to filter out spurious data reported occasionally by some devices.
         """
-        return self._network.manager.getChangeVerified(self.value_id)
+        try:
+            return self._network.manager.getChangeVerified(self.value_id)
+        except:
+            logger.error(traceback.format_exc())
 
 
     def set_change_verified(self, verify):
@@ -543,7 +626,10 @@ class ZWaveValue(ZWaveObject):
         :type verify: bool
         """
         logger.debug(u'Set change verified %s for valueId [%s]', verify, self.value_id)
-        self._network.manager.setChangeVerified(self.value_id, verify)
+        try:
+            self._network.manager.setChangeVerified(self.value_id, verify)
+        except:
+            logger.error(traceback.format_exc())
 
     def to_dict(self, extras=['all']):
         """

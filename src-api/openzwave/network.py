@@ -33,7 +33,7 @@ if six.PY3:
 else:
     from louie import dispatcher
 import threading
-
+import traceback
 import libopenzwave
 import openzwave
 from openzwave.object import ZWaveException, ZWaveTypeException, ZWaveObject
@@ -370,9 +370,12 @@ class ZWaveNetwork(ZWaveObject):
         if self._started == True:
             return
         logger.info(u"Start Openzwave network.")
-        self._manager.addWatcher(self.zwcallback)
-        self._manager.addDriver(self._options.device)
-        self._started = True
+        try:
+            self._manager.addWatcher(self.zwcallback)
+            self._manager.addDriver(self._options.device)
+            self._started = True
+        except:
+            logger.error(traceback.format_exc())
 
     def stop(self, fire=True):
         """
@@ -648,10 +651,13 @@ class ZWaveNetwork(ZWaveObject):
         :type state: bool
 
         """
-        if state:
-            self.manager.switchAllOn(self.home_id)
-        else:
-            self.manager.switchAllOff(self.home_id)
+        try:
+            if state:
+                self.manager.switchAllOn(self.home_id)
+            else:
+                self.manager.switchAllOff(self.home_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def test(self, count=1):
         """
@@ -661,7 +667,10 @@ class ZWaveNetwork(ZWaveObject):
         :type count: int
 
         """
-        self.manager.testNetwork(self.home_id, count)
+        try:
+            self.manager.testNetwork(self.home_id, count)
+        except:
+            logger.error(traceback.format_exc())
 
     def heal(self, upNodeRoute=False):
         """
@@ -678,8 +687,11 @@ class ZWaveNetwork(ZWaveObject):
         if self.network.state < self.network.STATE_AWAKED:
             logger.warning(u'Network must be awake')
             return False
-        self.manager.healNetwork(self.home_id, upNodeRoute)
-        return True
+        try:
+            self.manager.healNetwork(self.home_id, upNodeRoute)
+            return True
+        except:
+            logger.error(traceback.format_exc())
 
     def get_value(self, value_id):
         """
@@ -779,11 +791,14 @@ class ZWaveNetwork(ZWaveObject):
 
         """
         ret = {}
-        set_scenes = self._manager.getAllScenes()
-        logger.debug(u'Load Scenes: %s', set_scenes)
-        for scene_id in set_scenes:
-            scene = ZWaveScene(scene_id, network=self)
-            ret[scene_id] = scene
+        try:
+            set_scenes = self._manager.getAllScenes()
+            logger.debug(u'Load Scenes: %s', set_scenes)
+            for scene_id in set_scenes:
+                scene = ZWaveScene(scene_id, network=self)
+                ret[scene_id] = scene
+        except:
+            logger.error(traceback.format_exc())
         return ret
 
     def create_scene(self, label=None):
@@ -813,7 +828,10 @@ class ZWaveNetwork(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.sceneExists(scene_id)
+        try:
+            return self._network.manager.sceneExists(scene_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def scenes_count(self):
@@ -824,7 +842,10 @@ class ZWaveNetwork(ZWaveObject):
         :rtype: int
 
         """
-        return self._network.manager.getNumScenes()
+        try:
+            return self._network.manager.getNumScenes()
+        except:
+            logger.error(traceback.format_exc())
 
     def remove_scene(self, scene_id):
         """
@@ -836,7 +857,10 @@ class ZWaveNetwork(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.removeScene(scene_id)
+        try:
+            return self._network.manager.removeScene(scene_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def nodes_count(self):
@@ -870,7 +894,10 @@ class ZWaveNetwork(ZWaveObject):
         :rtype: int
 
         """
-        return self.manager.getPollInterval()
+        try:
+            return self.manager.getPollInterval()
+        except:
+            logger.error(traceback.format_exc())
 
     def set_poll_interval(self, milliseconds=500, bIntervalBetweenPolls=True):
         """
@@ -891,7 +918,10 @@ class ZWaveNetwork(ZWaveObject):
         :type bIntervalBetweenPolls: bool
 
         """
-        self.manager.setPollInterval(milliseconds, bIntervalBetweenPolls)
+        try:
+            self.manager.setPollInterval(milliseconds, bIntervalBetweenPolls)
+        except:
+            logger.error(traceback.format_exc())
 
     def zwcallback(self, args):
         """
