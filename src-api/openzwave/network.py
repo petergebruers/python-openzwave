@@ -283,6 +283,9 @@ class ZWaveNetwork(ZWaveObject):
     SIGNAL_NOTIFICATION = 'Notification'
     SIGNAL_CONTROLLER_COMMAND = 'ControllerCommand'
     SIGNAL_CONTROLLER_WAITING = 'ControllerWaiting'
+    SIGNAL_NODE_RESET = 'NodeReset'
+    SIGNAL_USER_ALERT = 'UserAlerts'
+    SIGNAL_MFG_SPECIFIC_DB_READY = 'ManufacturerSpecificDBReady'
 
     STATE_STOPPED = 0
     STATE_FAILED = 1
