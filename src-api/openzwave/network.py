@@ -661,25 +661,25 @@ class ZWaveNetwork(ZWaveObject):
         else:
             self._nodes = dict()
 
-    def switch_all(self, state):
-        """
-        Method for switching all devices on or off together.  The devices must support
-        the SwitchAll command class.  The command is first broadcast to all nodes, and
-        then followed up with individual commands to each node (because broadcasts are
-        not routed, the message might not otherwise reach all the nodes).
-
-        :param state: True to turn on the switches, False to turn them off
-        :type state: bool
-
-        """
-
-        try:
-            if state:
-                self.manager.switchAllOn(self.home_id)
-            else:
-                self.manager.switchAllOff(self.home_id)
-        except:
-            logger.error(traceback.format_exc())
+    # def switch_all(self, state):
+    #     """
+    #     Method for switching all devices on or off together.  The devices must support
+    #     the SwitchAll command class.  The command is first broadcast to all nodes, and
+    #     then followed up with individual commands to each node (because broadcasts are
+    #     not routed, the message might not otherwise reach all the nodes).
+    #
+    #     :param state: True to turn on the switches, False to turn them off
+    #     :type state: bool
+    #
+    #     """
+    #
+    #     try:
+    #         if state:
+    #             self.manager.switchAllOn(self.home_id)
+    #         else:
+    #             self.manager.switchAllOff(self.home_id)
+    #     except:
+    #         logger.error(traceback.format_exc())
 
     def test(self, count=1):
         """

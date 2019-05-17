@@ -382,7 +382,7 @@ class ZWaveNodeBasic(ZWaveNodeInterface):
         indices = self._value_index_mapping[0x70]
 
         values = {}
-        for i in range(indices.param_start, indices.param_end + 1):
+        for i in range(indices.indexes.param_start, indices.indexes.param_end + 1):
             if self._value_index_mapping[0x70][i] is not None:
                 value = self._value_index_mapping[0x70][i]
 
@@ -616,10 +616,9 @@ class ZWaveNodeSwitch(ZWaveNodeInterface):
         """
 
         if 0x25 not in self._value_index_mapping:
-            return False
+            return
 
         self._value_index_mapping[0x25].level.data = value
-        return True
 
     @property
     def dimmers(self):
@@ -677,23 +676,29 @@ class ZWaveNodeSwitch(ZWaveNodeInterface):
         logger.debug(u"set_dimmer Level:%s", value)
 
         if 0x26 not in self._value_index_mapping:
-            return False
+            return
 
         if 99 < value < 255:
             value = 99
         elif value < 0:
             value = 0
 
-        self._value_index_mapping[0x26].level.data = value
+        event = threading.Event()
 
-        # Dimmers doesn't return the good level.
-        # Add a Timer to refresh the value
-        if value == 0:
-            timer1 = threading.Timer(1, self._value_index_mapping[0x26].level.refresh)
-            timer1.start()
-            timer2 = threading.Timer(2, self._value_index_mapping[0x26].level.refresh)
-            timer2.start()
-        return True
+        if self._value_index_mapping[0x26].target_value is not None:
+            while self._value_index_mapping[0x26].target_value != value:
+                self._value_index_mapping[0x26].level.data = value
+                event.wait(0.1)
+
+        else:
+            self._value_index_mapping[0x26].level.data = value
+            # Dimmers doesn't return the good level.
+            # Add a Timer to refresh the value
+            if value == 0:
+                timer1 = threading.Timer(1, self._value_index_mapping[0x26].level.refresh)
+                timer1.start()
+                timer2 = threading.Timer(2, self._value_index_mapping[0x26].level.refresh)
+                timer2.start()
 
     @property
     def rgb_bulbs(self):
@@ -789,7 +794,7 @@ class ZWaveNodeSensor(ZWaveNodeInterface):
 
         indices = self._value_index_mapping[command_class]
 
-        for i in range(indices.start, indices.end + 1):
+        for i in range(indices.indexes.start, indices.indexes.end + 1):
             if self._value_index_mapping[command_class][i] is not None:
                 value = self._value_index_mapping[command_class][i]
                 values[value.value_id] = value
@@ -814,7 +819,7 @@ class ZWaveNodeSensor(ZWaveNodeInterface):
 
         indices = self._value_index_mapping[command_class]
 
-        for i in range(indices.start, indices.end + 1):
+        for i in range(indices.indexes.start, indices.indexes.end + 1):
             if self._value_index_mapping[command_class][i] is not None:
                 return self._value_index_mapping[command_class][i].data
 
@@ -1292,6 +1297,87 @@ class ZWaveSoundSwitch(ZWaveNodeInterface):
         return self._value_index_mapping[0x75].tone.data_items
 
 
+class ZWaveNotification(ZWaveNodeInterface):
+    """
+    Represents an interface to Security Commands
+
+    """
+
+    @property
+    def alarm_state(self):
+        """
+        The command 0x71 COMMAND_CLASS_NOTIFICATION (COMMAND_CLASS_ALARM) of this node.
+        Get Alarm State
+
+        :return: state
+        :rtype: str
+        """
+
+        if 0x71 not in self._value_index_mapping:
+            return
+
+        indices = self._value_index_mapping[0x71]
+
+        for i in range(indices.indexes.start, indices.indexes.end + 1):
+            if self._value_index_mapping[0x71][i] is not None:
+                return self._value_index_mapping[0x71][i].data
+
+    @property
+    def alarm_level(self):
+        """
+        The command 0x71 COMMAND_CLASS_NOTIFICATION (COMMAND_CLASS_ALARM) of this node.
+        Get Alarm Level
+
+        :return: level
+        :rtype: str
+        """
+
+        if 0x71 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x71].level_v1.data
+
+    @property
+    def alarm_type(self):
+        """
+        The command 0x71 COMMAND_CLASS_NOTIFICATION (COMMAND_CLASS_ALARM) of this node.
+        Get Alarm Type
+
+        :return: alarm type
+        :rtype: str
+
+        """
+
+        if 0x71 not in self._value_index_mapping:
+            return []
+
+        return self._value_index_mapping[0x71].type_v1.data
+
+    @property
+    def alarm_parameters(self):
+        """
+        The command 0x71 COMMAND_CLASS_NOTIFICATION (COMMAND_CLASS_ALARM) of this node.
+        Get Alarm Parameters
+
+        :return: parameters
+        :rtype: list
+
+        """
+
+        if 0x71 not in self._value_index_mapping:
+            return []
+
+        indices = self._value_index_mapping[0x71]
+
+        res = []
+
+        for i in range(indices.indexes.param_start, indices.indexes.param_end + 1):
+            if self._value_index_mapping[0x71][i] is not None:
+                res += [self._value_index_mapping[0x71][i]]
+
+        return res
+
+
 class ZWaveSimpleAVControl(ZWaveNodeInterface):
     """
     Represents an interface to Security Commands
@@ -1451,14 +1537,14 @@ class UserCodes(object):
 
     def __setitem__(self, key, value):
         if isinstance(key, int):
-            if self._indices.start <= key <= self._indices.end:
+            if self._indices.indexes.start <= key <= self._indices.end:
                 if value not in self:
                     self._indices[key].data = value
             else:
                 raise IndexError(str(key))
 
         else:
-            for i in range(self._indices.start, self._indices.end + 1):
+            for i in range(self._indices.indexes.start, self._indices.end + 1):
                 if (
                     self._indices[i] is not None and
                     self._indices[i].label == key
@@ -1466,7 +1552,7 @@ class UserCodes(object):
                     self._indices[i].data = value
                     break
             else:
-                i = self._indices.start + len(self)
+                i = self._indices.indexes.start + len(self)
 
                 if i > self._indices.end:
                     raise KeyError('Maximum Codes reached.')
@@ -1477,7 +1563,7 @@ class UserCodes(object):
         if code in self:
             return False
         try:
-            self[self._indices.start + len(self)] = code
+            self[self._indices.indexes.start + len(self)] = code
             return True
         except IndexError:
             return False
@@ -1494,7 +1580,7 @@ class UserCodes(object):
                 break
 
     def __contains__(self, item):
-        for i in range(self._indices.start, self._indices.end + 1):
+        for i in range(self._indices.indexes.start, self._indices.indexes.end + 1):
             if (
                 self._indices[i] is not None and
                 item in (self._indices[i].data, self._indices[i].label)

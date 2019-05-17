@@ -687,7 +687,7 @@ class ZWaveNode(ZWaveObject,
 
         """
         return self._is('MultiInstance')
-        
+
     @property
     def is_listening_device(self):
         """

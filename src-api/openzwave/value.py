@@ -39,7 +39,7 @@ except ImportError:
 logger = logging.getLogger('openzwave')
 logger.addHandler(NullHandler())
 
-COMMAND_CLASS_SILENCE_ALARM = 0x9D
+COMMAND_CLASS_NOTIFICATION = 0x71
 COMMAND_CLASS_ASSOCIATION_COMMAND_CONFIGURATION = 0x9B
 COMMAND_CLASS_BARRIER_OPERATOR = 0x66
 COMMAND_CLASS_BASIC = 0x20
@@ -1261,7 +1261,7 @@ class ValueIndexes:
 
 
 _index_mapping = {
-    COMMAND_CLASS_SILENCE_ALARM: ValueIndexes.Alarm,
+    COMMAND_CLASS_NOTIFICATION: ValueIndexes.Alarm,
     COMMAND_CLASS_ASSOCIATION_COMMAND_CONFIGURATION: ValueIndexes.AssociationCommandConfiguration,
     COMMAND_CLASS_BARRIER_OPERATOR: ValueIndexes.BarrierOperator,
     COMMAND_CLASS_BASIC: ValueIndexes.Basic,
@@ -1790,7 +1790,7 @@ class ZWaveValue(ZWaveObject):
         :rtype: bool, None
         """
         if self.type == 'BitSet':
-            return self._network.manager.setValue(self.value_id, pos, value)
+            return self._network.manager.setValue(self.value_id, value, pos)
 
     @property
     def is_set(self):

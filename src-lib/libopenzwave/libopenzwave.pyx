@@ -2989,7 +2989,6 @@ if the Z-Wave message actually failed to get through.  Notification callbacks wi
                 ret = 1 if cret else 0
             elif datatype == "BitSet":
                 if pos is not None:
-                    pos, value = value, pos
                     type_bool = value
                     cret = self.manager.SetValue(values_map.at(id), pos, type_bool)
                 else:
