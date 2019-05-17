@@ -79,6 +79,7 @@ class ZWaveOption(libopenzwave.PyOptions):
             except:
                 import sys, traceback
                 raise ZWaveException(u"Error when retrieving device %s : %s" % (device, traceback.format_exception(*sys.exc_info())))
+
         libopenzwave.PyOptions.__init__(self, config_path=config_path, user_path=user_path, cmd_line=cmd_line)
 
     def set_log_file(self, logfile):

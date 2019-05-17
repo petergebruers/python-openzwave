@@ -25,6 +25,7 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 """
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
+import traceback
 import warnings
 try:  # Python 2.7+
     from logging import NullHandler
@@ -124,6 +125,27 @@ class ZWaveObject(object):
             self._cached_properties = dict()
         else:
             self._cached_properties = None
+
+    def _is(self, attr_name, *args):
+        try:
+            attr = getattr(self._network.manager, 'is' + attr_name)
+            return attr(self.home_id, self.object_id, *args)
+        except:
+            logger.error(traceback.format_exc())
+
+    def _get(self, attr_name, *args):
+        try:
+            attr = getattr(self._network.manager, 'get' + attr_name)
+            return attr(self.home_id, self.object_id, *args)
+        except:
+            logger.error(traceback.format_exc())
+
+    def _set(self, attr_name, *args):
+        try:
+            attr = getattr(self._network.manager, 'set' + attr_name)
+            attr(self.home_id, self.object_id, *args)
+        except:
+            logger.error(traceback.format_exc())
 
     @property
     def home_id(self):

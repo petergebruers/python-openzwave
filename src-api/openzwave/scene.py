@@ -23,6 +23,7 @@ You should have received a copy of the GNU General Public License
 along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
+import traceback
 from openzwave.object import ZWaveObject
 
 # Set default logging handler to avoid "No handler found" warnings.
@@ -83,7 +84,10 @@ class ZWaveScene(ZWaveObject):
         :rtype: str
 
         """
-        return self._network.manager.getSceneLabel(self.object_id)
+        try:
+            return self._network.manager.getSceneLabel(self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     @label.setter
     def label(self, value):
@@ -94,7 +98,10 @@ class ZWaveScene(ZWaveObject):
         :type value: str
 
         """
-        self._network.manager.setSceneLabel(self.object_id, value)
+        try:
+            self._network.manager.setSceneLabel(self.object_id, value)
+        except:
+            logger.error(traceback.format_exc())
 
     def create(self, label=None):
         """
@@ -107,12 +114,15 @@ class ZWaveScene(ZWaveObject):
         :rtype: int
 
         """
-        scene_id = self._network.manager.createScene()
-        if scene_id != 0:
-            self._object_id = scene_id
-            if label is not None:
-                self.label = label
-        return scene_id
+        try:
+            scene_id = self._network.manager.createScene()
+            if scene_id != 0:
+                self._object_id = scene_id
+                if label is not None:
+                    self.label = label
+            return scene_id
+        except:
+            logger.error(traceback.format_exc())
 
     def add_value(self, value_id, value_data):
         """
@@ -124,9 +134,13 @@ class ZWaveScene(ZWaveObject):
         :type value_data: variable
 
         """
-        ret = self._network.manager.addSceneValue(self.scene_id, value_id, value_data)
-        if ret == 1:
-            return True
+        try:
+            ret = self._network.manager.addSceneValue(self.scene_id, value_id, value_data)
+            if ret == 1:
+                return True
+        except:
+            logger.error(traceback.format_exc())
+
         return False
 
     def set_value(self, value_id, value_data):
@@ -139,9 +153,12 @@ class ZWaveScene(ZWaveObject):
         :type value_data: variable
 
         """
-        ret = self._network.manager.setSceneValue(self.scene_id, value_id, value_data)
-        if ret == 1:
-            return True
+        try:
+            ret = self._network.manager.setSceneValue(self.scene_id, value_id, value_data)
+            if ret == 1:
+                return True
+        except:
+            logger.error(traceback.format_exc())
         return False
 
     def get_values(self):
@@ -153,12 +170,16 @@ class ZWaveScene(ZWaveObject):
 
         """
         ret = dict()
-        values = self._network.manager.sceneGetValues(self.scene_id)
-        if values is None:
-            return ret
-        for val in values:
-            value = self._network.get_value(val)
-            ret[val] = {'value':value, 'data':values[val]}
+        try:
+            values = self._network.manager.sceneGetValues(self.scene_id)
+            if values is None:
+                return ret
+            for val in values:
+                value = self._network.get_value(val)
+                ret[val] = {'value':value, 'data':values[val]}
+        except:
+            logger.error(traceback.format_exc())
+
         return ret
 
     def get_values_by_node(self):
@@ -170,15 +191,19 @@ class ZWaveScene(ZWaveObject):
 
         """
         ret = dict()
-        values = self._network.manager.sceneGetValues(self.scene_id)
-        if values is None:
-            return ret
-        for val in values:
-            value = self._network.get_value(val)
-            if value is not None:
-                if value.node.node_id not in ret:
-                    ret[value.node.node_id] = {}
-                ret[value.node.node_id][val] = {'value':value, 'data':values[val]}
+        try:
+            values = self._network.manager.sceneGetValues(self.scene_id)
+            if values is None:
+                return ret
+            for val in values:
+                value = self._network.get_value(val)
+                if value is not None:
+                    if value.node.node_id not in ret:
+                        ret[value.node.node_id] = {}
+                    ret[value.node.node_id][val] = {'value':value, 'data':values[val]}
+        except:
+            logger.error(traceback.format_exc())
+
         return ret
 
     def remove_value(self, value_id):
@@ -191,7 +216,10 @@ class ZWaveScene(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.removeSceneValue(self.scene_id, value_id)
+        try:
+            return self._network.manager.removeSceneValue(self.scene_id, value_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def activate(self):
         """
@@ -201,7 +229,10 @@ class ZWaveScene(ZWaveObject):
         :rtype: bool
 
         """
-        return self._network.manager.activateScene(self.object_id)
+        try:
+            return self._network.manager.activateScene(self.object_id)
+        except:
+            logger.error(traceback.format_exc())
 
     def to_dict(self, extras=['kvals']):
         """

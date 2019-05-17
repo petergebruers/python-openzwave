@@ -24,7 +24,7 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
 from openzwave.object import ZWaveObject
-
+import traceback
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
 try:  # Python 2.7+
@@ -89,7 +89,7 @@ class ZWaveGroup(ZWaveObject):
         :rtype: int
 
         """
-        return self._network.manager.getGroupLabel(self.home_id, self._node_id, self.index)
+        return self._get('GroupLabel', self.index)
 
     @property
     def max_associations(self):
@@ -99,7 +99,7 @@ class ZWaveGroup(ZWaveObject):
         :rtype: int
 
         """
-        return self._network.manager.getMaxAssociations(self.home_id, self._node_id, self.index)
+        return self._get('MaxAssociations', self.index)
 
     @property
     def associations(self):
@@ -109,7 +109,7 @@ class ZWaveGroup(ZWaveObject):
         :rtype: set()
 
         """
-        return self._network.manager.getAssociations(self.home_id, self._node_id, self.index)
+        return self._get('Associations', self.index)
 
     @property
     def associations_instances(self):
@@ -120,7 +120,7 @@ class ZWaveGroup(ZWaveObject):
         :rtype: set() of tuples (nodeid,instanceid)
 
         """
-        return self._network.manager.getAssociationsInstances(self.home_id, self._node_id, self.index)
+        return self._get('AssociationsInstances', self.index)
 
     def add_association(self, target_node_id, instance=0x00):
         """
@@ -138,7 +138,10 @@ class ZWaveGroup(ZWaveObject):
         :type instance: int
 
         """
-        self._network.manager.addAssociation(self.home_id, self._node_id, self.index, target_node_id, instance)
+        try:
+            self._network.manager.addAssociation(self.home_id, self._node_id, self.index, target_node_id, instance)
+        except:
+            logger.error(traceback.format_exc())
 
     def remove_association(self, target_node_id, instance=0x00):
         """
@@ -156,7 +159,10 @@ class ZWaveGroup(ZWaveObject):
         :type instance: int
 
         """
-        self._network.manager.removeAssociation(self._network.home_id, self._node_id, self.index, target_node_id, instance)
+        try:
+            self._network.manager.removeAssociation(self._network.home_id, self._node_id, self.index, target_node_id, instance)
+        except:
+            logger.error(traceback.format_exc())
 
     def to_dict(self, extras=['all']):
         """
