@@ -679,6 +679,16 @@ class ZWaveNode(ZWaveObject,
         return self._get('NodeVersion')
 
     @property
+    def is_multi_instance(self):
+        """
+        Does this node support MultiInstance Associations.
+
+        :rtype: bool
+
+        """
+        return self._is('MultiInstance')
+        
+    @property
     def is_listening_device(self):
         """
         Is this node a listening device.

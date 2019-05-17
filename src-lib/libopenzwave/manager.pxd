@@ -114,6 +114,7 @@ cdef extern from "Manager.h" namespace "OpenZWave":
         # deprecated void SetNodeOn(uint32_t homeid, uint8_t nodeid)
         # deprecated void SetNodeOff(uint32_t homeid, uint8_t nodeid)
         # deprecated void SetNodeLevel(uint32_t homeid, uint8_t nodeid, uint8_t level)
+        bool IsMultiInstance(uint32_t homeid, uint8_t nodeid)
         bool IsNodeInfoReceived(uint32_t homeid, uint8_t nodeid)
         bool IsNodePlusInfoReceived(uint32_t homeid, uint8_t nodeid)
         bool GetNodeClassInformation( uint32_t homeId, uint8_t nodeId, uint8_t commandClassId,

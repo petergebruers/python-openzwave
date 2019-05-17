@@ -2593,6 +2593,22 @@ Node Naming command class, the new location will be sent to the node.
 #         '''
 #         self.manager.SetNodeLevel(homeid, nodeid, level)
 
+    def isMultiInstance(self, homeid, nodeid):
+        '''
+.. _isMultiInstance:
+
+Get whether the node supports MultiInstance Associations
+
+:param homeid: The Home ID of the Z-Wave controller that manages the node.
+:type homeid: int
+:param nodeid: The ID of the node to query.
+:type nodeid: int
+:return: True if the node supports MultiInstance Associations
+:rtype: bool
+
+        '''
+        return self.manager.IsMultiInstance(homeid, nodeid)
+
     def isNodeInfoReceived(self, homeid, nodeid):
         '''
 .. _isNodeInfoReceived:
