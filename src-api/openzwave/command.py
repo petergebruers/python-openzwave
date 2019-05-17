@@ -24,7 +24,7 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
 from openzwave.object import ZWaveNodeInterface
-from threading import Timer
+import threading
 
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
@@ -37,6 +37,7 @@ except ImportError:
             pass
 logger = logging.getLogger('openzwave')
 logger.addHandler(NullHandler())
+
 
 class ZWaveNodeBasic(ZWaveNodeInterface):
     """
@@ -269,8 +270,8 @@ class ZWaveNodeBasic(ZWaveNodeInterface):
         get_switch (label) : retrieve the value where label=label
     """
 
-
-    def get_battery_level(self, value_id=None):
+    @property
+    def battery_level(self):
         """
         The battery level of this node.
         The command 0x80 (COMMAND_CLASS_BATTERY) of this node.
@@ -280,14 +281,14 @@ class ZWaveNodeBasic(ZWaveNodeInterface):
         :return: The level of this battery
         :rtype: int
         """
-        if value_id is None:
-            for val in self.get_battery_levels():
-                return self.values[val].data
-        elif value_id in self.get_battery_levels():
-            return self.values[value_id].data
-        return None
 
-    def get_battery_levels(self):
+        if 0x80 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x80].level.data
+
+    @property
+    def battery_levels(self):
         """
         The command 0x80 (COMMAND_CLASS_BATTERY) of this node.
         Retrieve the list of values to consider as batteries.
@@ -302,10 +303,13 @@ class ZWaveNodeBasic(ZWaveNodeInterface):
         :return: The list of switches on this node
         :rtype: dict()
         """
-        return self.get_values(class_id=0x80, genre='User', \
-        type='Byte', readonly=True, writeonly=False)
+        if 0x80 not in self._value_index_mapping:
+            return
 
-    def get_power_level(self, value_id=None):
+        return self._value_index_mapping[0x80].level.data
+
+    @property
+    def power_level(self):
         """
         The power level of this node.
         The command 0x73 (COMMAND_CLASS_POWERLEVEL) of this node.
@@ -315,14 +319,14 @@ class ZWaveNodeBasic(ZWaveNodeInterface):
         :return: The level of this battery
         :rtype: int
         """
-        if value_id is None:
-            for val in self.get_power_levels():
-                return self.values[val].data
-        elif value_id in self.get_power_levels():
-            return self.values[value_id].data
-        return None
 
-    def get_power_levels(self):
+        if 0x73 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x73].level.data
+
+    @property
+    def power_levels(self):
         """
         The command 0x73 (COMMAND_CLASS_POWERLEVEL) of this node.
         Retrieve the list of values to consider as power_levels.
@@ -337,9 +341,13 @@ class ZWaveNodeBasic(ZWaveNodeInterface):
         :return: The list of switches on this node
         :rtype: dict()
         """
-        return self.get_values(class_id=0x73, genre='User', \
-        type='Byte', readonly=True, writeonly=False)
 
+        if 0x73 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x73].level.data
+
+    @property
     def can_wake_up(self):
         """
         Check if node contain the command class 0x84 (COMMAND_CLASS_WAKE_UP).
@@ -351,11 +359,7 @@ class ZWaveNodeBasic(ZWaveNodeInterface):
         :return: True if the node can wake up
         :rtype: bool
         """
-        res = self.get_values(class_id=0x84)
-        if res is not None and len(res) > 0:
-            return True
-        else:
-            return False
+        return 0x84 in self.command_classes
 
     def get_configs(self, readonly='All', writeonly='All'):
         """
@@ -372,41 +376,64 @@ class ZWaveNodeBasic(ZWaveNodeInterface):
         :return: The list of configuration parameters
         :rtype: dict()
         """
-        return self.get_values(class_id=0x70, genre='Config', readonly=readonly, writeonly=writeonly)
+        if 0x70 not in self._value_index_mapping:
+            return
 
-    def set_config(self, value_id, value):
+        indices = self._value_index_mapping[0x70]
+
+        values = {}
+        for i in range(indices.param_start, indices.param_end + 1):
+            if self._value_index_mapping[0x70][i] is not None:
+                value = self._value_index_mapping[0x70][i]
+
+                if (
+                    readonly in ('All', value.readonly) and
+                    writeonly in ('All', value.writeonly)
+                ):
+                    values[value.value_id] = value
+
+        return values
+
+    def set_config(self, index, value):
         """
         The command 0x70 (COMMAND_CLASS_CONFIGURATION) of this node.
         Set config to value (using value value_id)
 
-        :param value_id: The value to retrieve state
-        :type value_id: int
+        :param index: The index of the value
+        :type index: int
         :param value: Appropriate value for given config
         :type value: any
         """
-        if value_id in self.get_configs(readonly=False):
-            self.values[value_id].data = value
-            return True
-        return False
 
+        if 0x70 not in self._value_index_mapping:
+            return False
 
-    def get_config(self, value_id=None):
+        if self._value_index_mapping[0x70][index] is None:
+            return False
+
+        self._value_index_mapping[0x70][index].data = value
+        return True
+
+    def get_config(self, index):
         """
         The command 0x70 (COMMAND_CLASS_CONFIGURATION) of this node.
         Set config to value (using value value_id)
 
-        :param value_id: The value to retrieve value. If None, retrieve the first value
-        :type value_id: int
-        :return: The level of this battery
-        :rtype: int
+        :param index: The index of the value to retrieve.
+        :type index: int
+        :return: The data stored in the value
+        :rtype: any
         """
-        if value_id is None:
-            for val in self.get_configs():
-                return self.values[val].data
-        elif value_id in self.get_configs():
-            return self.values[value_id].data
-        return None
 
+        if 0x70 not in self._value_index_mapping:
+            return
+
+        if self._value_index_mapping[0x70][index] is None:
+            return
+
+        return self._value_index_mapping[0x70][index].data
+
+    @property
     def can_set_indicator(self):
         """
         Check if node contain the command class 0x87 (COMMAND_CLASS_INDICATOR).
@@ -418,11 +445,9 @@ class ZWaveNodeBasic(ZWaveNodeInterface):
         :return: True if the node can set the indicator
         :rtype: bool
         """
-        res = self.get_values(class_id=0x87)
-        if res is not None and len(res) > 0:
-            return True
-        else:
-            return False
+
+        return 0x87 in self.command_classes
+
 
 class ZWaveNodeSwitch(ZWaveNodeInterface):
     """
@@ -430,7 +455,8 @@ class ZWaveNodeSwitch(ZWaveNodeInterface):
 
     """
 
-    def get_switches_all(self):
+    @property
+    def switches_all(self):
         """
         The command 0x27 (COMMAND_CLASS_SWITCH_ALL) of this node.
         Retrieve the list of values to consider as switches_all.
@@ -446,79 +472,99 @@ class ZWaveNodeSwitch(ZWaveNodeInterface):
         :rtype: dict()
 
         """
-        return self.get_values(class_id=0x27, genre='System', type='List', readonly=False, writeonly=False)
 
-    def set_switch_all(self, value_id, value):
-        """
-        The command 0x27 (COMMAND_CLASS_SWITCH_ALL) of this node.
-        Set switches_all to value (using value value_id).
+        if 0x27 not in self._value_index_mapping:
+            return
 
-        :param value_id: The value to retrieve state
-        :type value_id: int
-        :param value: A predefined string
-        :type value: str
+        return self._value_index_mapping[0x27].switch_all.data_items
 
-        """
-        if value_id in self.get_switches_all():
-            self.values[value_id].data = value
-            return True
-        return False
-
-    def get_switch_all_state(self, value_id):
+    @property
+    def switch_all_state(self):
         """
         The command 0x27 (COMMAND_CLASS_SWITCH_ALL) of this node.
         Return the state (using value value_id) of a switch or a dimmer.
 
-        :param value_id: The value to retrieve state
-        :type value_id: int
         :return: The state of the value
         :rtype: bool
 
         """
-        if value_id in self.get_switches_all():
-            instance = self.values[value_id].instance
-            for switch in self.get_switches():
-                if self.values[switch].instance == instance:
-                    return self.values[switch].data
-            for dimmer in self.get_dimmers():
-                if self.values[dimmer].instance == instance:
-                    if self.values[dimmer].data == 0:
-                        return False
-                    else:
-                        return True
+
+        if 0x27 not in self._value_index_mapping:
+            return
+
+        for command_class in range(0x25, 0x27):
+            if command_class in self._value_index_mapping:
+                break
+        else:
+            return
+
+        indices = self._value_index_mapping[command_class]
+        instance = self._value_index_mapping[0x27].switch_all.instance
+
+        if indices.level.instance == instance:
+            return indices.level.data
+
+        for switch in self.get_switches():
+            if self.values[switch].instance == instance:
+                return self.values[switch].data
+        for dimmer in self.get_dimmers():
+            if self.values[dimmer].instance == instance:
+                if self.values[dimmer].data == 0:
+                    return False
+                else:
+                    return True
         return None
 
-    def get_switch_all_item(self, value_id):
+    @switch_all_state.setter
+    def switch_all_state(self, value):
+        """
+        The command 0x27 (COMMAND_CLASS_SWITCH_ALL) of this node.
+        Set switches_all to value (using value value_id).
+
+        :param value: A predefined string
+        :type value: str
+
+        """
+
+        if 0x27 not in self._value_index_mapping:
+            return
+
+        self._value_index_mapping[0x27].switch_all.data = value
+
+    @property
+    def switch_all_item(self):
         """
         The command 0x27 (COMMAND_CLASS_SWITCH_ALL) of this node.
         Return the current value (using value value_id) of a switch_all.
 
-        :param value_id: The value to retrieve switch_all value
-        :type value_id: int
         :return: The value of the value
         :rtype: str
 
         """
-        if value_id in self.get_switches_all():
-            return self.values[value_id].data
-        return None
 
-    def get_switch_all_items(self, value_id):
+        if 0x27 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x27].switch_all.data
+
+    @property
+    def switch_all_items(self):
         """
         The command 0x27 (COMMAND_CLASS_SWITCH_ALL) of this node.
         Return the all the possible values (using value value_id) of a switch_all.
 
-        :param value_id: The value to retrieve items list
-        :type value_id: int
         :return: The value of the value
         :rtype: set()
 
         """
-        if value_id in self.get_switches_all():
-            return self.values[value_id].data_items
-        return None
 
-    def get_switches(self):
+        if 0x27 not in self._value_index_mapping:
+            return []
+
+        return self._value_index_mapping[0x27].switch_all.data_items
+
+    @property
+    def switches(self):
         """
         The command 0x25 (COMMAND_CLASS_SWITCH_BINARY) of this node.
         Retrieve the list of values to consider as switches.
@@ -534,41 +580,49 @@ class ZWaveNodeSwitch(ZWaveNodeInterface):
         :rtype: dict()
 
         """
-        return self.get_values(class_id=0x25, genre='User', \
-        type='Bool', readonly=False, writeonly=False)
+        values = {}
 
-    def set_switch(self, value_id, value):
-        """
-        The command 0x25 (COMMAND_CLASS_SWITCH_BINARY) of this node.
-        Set switch to value (using value value_id).
+        for value in self.value.values():
+            if value.command_class == 0x25:
+                values[value.value_id] = value
 
-        :param value_id: The value to retrieve state
-        :type value_id: int
-        :param value: True or False
-        :type value: bool
+        return values
 
-        """
-        if value_id in self.get_switches():
-            self.values[value_id].data = value
-            return True
-        return False
-
-    def get_switch_state(self, value_id):
+    @property
+    def switch_state(self):
         """
         The command 0x25 (COMMAND_CLASS_SWITCH_BINARY) of this node.
         Return the state (using value value_id) of a switch.
 
-        :param value_id: The value to retrieve state
-        :type value_id: int
         :return: The state of the value
         :rtype: bool
 
         """
-        if value_id in self.get_switches():
-            return self.values[value_id].data
-        return None
 
-    def get_dimmers(self):
+        if 0x25 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x25].level.data
+
+    @switch_state.setter
+    def switch_state(self, value):
+        """
+        The command 0x25 (COMMAND_CLASS_SWITCH_BINARY) of this node.
+        Set switch to value (using value value_id).
+
+        :param value: True or False
+        :type value: bool
+
+        """
+
+        if 0x25 not in self._value_index_mapping:
+            return False
+
+        self._value_index_mapping[0x25].level.data = value
+        return True
+
+    @property
+    def dimmers(self):
         """
         The command 0x26 (COMMAND_CLASS_SWITCH_MULTILEVEL) of this node.
         Retrieve the list of values to consider as dimmers.
@@ -584,54 +638,65 @@ class ZWaveNodeSwitch(ZWaveNodeInterface):
         :rtype: dict()
 
         """
-        return self.get_values(class_id=0x26, genre='User', \
-        type='Byte', readonly=False, writeonly=False)
+        values = {}
 
-    def set_dimmer(self, value_id, value):
+        for value in self.value.values():
+            if value.command_class == 0x26:
+                values[value.value_id] = value
+
+        return values
+
+    @property
+    def dimmer_level(self):
+        """
+        The command 0x26 (COMMAND_CLASS_SWITCH_MULTILEVEL) of this node.
+        Get the dimmer level (using value value_id).
+
+        :return: The level : a value between 0-99
+        :rtype: int
+
+        """
+
+        if 0x26 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x26].level.data
+
+    @dimmer_level.setter
+    def dimmer_level(self, value):
         """
         The command 0x26 (COMMAND_CLASS_SWITCH_MULTILEVEL) of this node.
         Set switch to value (using value value_id).
 
-        :param value_id: The value to retrieve state
-        :type value_id: int
         :param value: The level : a value between 0-99 or 255. 255 set the level to the last value. \
         0 turn the dimmer off
         :type value: int
 
         """
+
         logger.debug(u"set_dimmer Level:%s", value)
-        if value_id in self.get_dimmers():
-            if 99 < value < 255:
-                value = 99
-            elif value < 0:
-                value = 0
-            self.values[value_id].data = value
-            #Dimmers doesn't return the good level.
-            #Add a Timer to refresh the value
-            if value == 0:
-                timer1 = Timer(1, self.values[value_id].refresh)
-                timer1.start()
-                timer2 = Timer(2, self.values[value_id].refresh)
-                timer2.start()
-            return True
-        return False
 
-    def get_dimmer_level(self, value_id):
-        """
-        The command 0x26 (COMMAND_CLASS_SWITCH_MULTILEVEL) of this node.
-        Get the dimmer level (using value value_id).
+        if 0x26 not in self._value_index_mapping:
+            return False
 
-        :param value_id: The value to retrieve level
-        :type value_id: int
-        :return: The level : a value between 0-99
-        :rtype: int
+        if 99 < value < 255:
+            value = 99
+        elif value < 0:
+            value = 0
 
-        """
-        if value_id in self.get_dimmers():
-            return self.values[value_id].data
-        return None
+        self._value_index_mapping[0x26].level.data = value
 
-    def get_rgbbulbs(self):
+        # Dimmers doesn't return the good level.
+        # Add a Timer to refresh the value
+        if value == 0:
+            timer1 = threading.Timer(1, self._value_index_mapping[0x26].level.refresh)
+            timer1.start()
+            timer2 = threading.Timer(2, self._value_index_mapping[0x26].level.refresh)
+            timer2.start()
+        return True
+
+    @property
+    def rgb_bulbs(self):
         """
         The command 0x33 (COMMAND_CLASS_COLOR) of this node.
         Retrieve the list of values to consider as RGBW bulbs.
@@ -647,40 +712,45 @@ class ZWaveNodeSwitch(ZWaveNodeInterface):
         :rtype: dict()
 
         """
-        return self.get_values(class_id=0x33, genre='User', \
-        type='String', readonly=False, writeonly=False)
 
-    def set_rgbw(self, value_id, value):
-        """
-        The command 0x33 (COMMAND_CLASS_COLOR) of this node.
-        Set RGBW to value (using value value_id).
+        values = {}
 
-        :param value_id: The value to retrieve state
-        :type value_id: String
-        :param value: The level : a RGBW value
-        :type value: int
+        for value in self.value.values():
+            if value.command_class == 0x33:
+                values[value.value_id] = value
 
-        """
-        logger.debug(u"set_rgbw value:%s", value)
-        if value_id in self.get_rgbbulbs():
-            self.values[value_id].data = value
-            return True
-        return False
+        return values
 
-    def get_rgbw(self, value_id):
+    @property
+    def rgbw(self):
         """
         The command 0x33 (COMMAND_CLASS_COLOR) of this node.
         Get the RGW value (using value value_id).
 
-        :param value_id: The value to retrieve level
-        :type value_id: int
         :return: The level : a value between 0-99
         :rtype: int
 
         """
-        if value_id in self.get_rgbbulbs():
-            return self.values[value_id].data
-        return None
+        if 0x33 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x33].color.data
+
+    @rgbw.setter
+    def rgbw(self, value):
+        """
+        The command 0x33 (COMMAND_CLASS_COLOR) of this node.
+        Set RGBW to value (using value value_id).
+
+        :param value: The level : a RGBW value
+        :type value: int
+
+        """
+
+        if 0x33 not in self._value_index_mapping:
+            return
+
+        self._value_index_mapping[0x33].color.data = value
 
 
 class ZWaveNodeSensor(ZWaveNodeInterface):
@@ -689,7 +759,8 @@ class ZWaveNodeSensor(ZWaveNodeInterface):
 
     """
 
-    def get_sensors(self, type='All'):
+    @property
+    def sensors(self):
         """
         The command 0x30 (COMMAND_CLASS_SENSOR_BINARY) of this node.
         The command 0x31 (COMMAND_CLASS_SENSOR_MULTILEVEL) of this node.
@@ -709,29 +780,43 @@ class ZWaveNodeSensor(ZWaveNodeInterface):
 
         """
         values = {}
-        values.update(self.get_values(type=type, class_id=0x30, genre='User', \
-            readonly=True, writeonly=False))
-        values.update(self.get_values(type=type, class_id=0x31, genre='User', \
-            readonly=True, writeonly=False))
-        values.update(self.get_values(type=type, class_id=0x32, genre='User', \
-            readonly=True, writeonly=False))
-        return values
 
-    def get_sensor_value(self, value_id):
+        for command_class in range(0x30, 0x33):
+            if command_class in self._value_index_mapping:
+                break
+        else:
+            return
+
+        indices = self._value_index_mapping[command_class]
+
+        for i in range(indices.start, indices.end + 1):
+            if self._value_index_mapping[command_class][i] is not None:
+                value = self._value_index_mapping[command_class][i]
+                values[value.value_id] = value
+
+    @property
+    def sensor_value(self):
         """
         The command 0x30 (COMMAND_CLASS_SENSOR_BINARY) of this node.
         The command 0x31 (COMMAND_CLASS_SENSOR_MULTILEVEL) of this node.
         The command 0x32 (COMMAND_CLASS_METER) of this node.
 
-        :param value_id: The value to retrieve value
-        :type value_id: int
         :return: The state of the sensors
         :rtype: variable
 
         """
-        if value_id in self.get_sensors():
-            return self.values[value_id].data
-        return None
+
+        for command_class in range(0x30, 0x33):
+            if command_class in self._value_index_mapping:
+                break
+        else:
+            return
+
+        indices = self._value_index_mapping[command_class]
+
+        for i in range(indices.start, indices.end + 1):
+            if self._value_index_mapping[command_class][i] is not None:
+                return self._value_index_mapping[command_class][i].data
 
 
 class ZWaveNodeThermostat(ZWaveNodeInterface):
@@ -740,7 +825,8 @@ class ZWaveNodeThermostat(ZWaveNodeInterface):
 
     """
 
-    def get_thermostats(self, type='All'):
+    @property
+    def thermostats(self):
         """
         The command 0x40 (COMMAND_CLASS_THERMOSTAT_MODE) of this node.
         The command 0x42 (COMMAND_CLASS_THERMOSTAT_OPERATING_STATE) of this node.
@@ -755,26 +841,20 @@ class ZWaveNodeThermostat(ZWaveNodeInterface):
             readonly = True/False
             writeonly = False
 
-        :param type: the type of value
-        :type type: 'All' or PyValueTypes
         :return: The list of switches on this node
         :rtype: dict()
 
         """
         values = {}
-        values.update(self.get_values(type=type, class_id=0x40, genre='User', \
-            readonly=False, writeonly=False))
-        values.update(self.get_values(type=type, class_id=0x42, genre='User', \
-            readonly=True, writeonly=False))
-        values.update(self.get_values(type=type, class_id=0x43, genre='User', \
-            readonly=False, writeonly=False))
-        values.update(self.get_values(type=type, class_id=0x44, genre='User', \
-            readonly=False, writeonly=False))
-        values.update(self.get_values(type=type, class_id=0x45, genre='User', \
-            readonly=True, writeonly=False))
+
+        for value in self.values.values():
+            if value.command_class in (0x40, 0x42, 0x43, 0x44, 0x45):
+                values[value.value_id] = value
+
         return values
 
-    def get_thermostat_value(self, value_id):
+    @property
+    def thermostat_state(self):
         """
         The command 0x40 (COMMAND_CLASS_THERMOSTAT_MODE) of this node.
         The command 0x42 (COMMAND_CLASS_THERMOSTAT_OPERATING_STATE) of this node.
@@ -782,17 +862,59 @@ class ZWaveNodeThermostat(ZWaveNodeInterface):
         The command 0x44 (COMMAND_CLASS_THERMOSTAT_FAN_MODE) of this node.
         The command 0x45 (COMMAND_CLASS_THERMOSTAT_FAN_STATE) of this node.
 
-        :param value_id: The value to retrieve value
-        :type value_id: int
         :return: The state of the thermostats
         :rtype: variable
 
         """
-        if value_id in self.get_thermostats():
-            return self.values[value_id].data
-        return None
+        res = {}
 
-    def set_thermostat_mode(self, value):
+        if 0x43 in self._value_index_mapping:
+            value = self._value_index_mapping[0x43]
+            set_points = []
+
+            for i in range(value.max_entry + 1):
+                if value[i] is not None:
+                    set_points += [
+                        [
+                            value[i].label,
+                            value[i].data,
+                            value[i].unit
+                        ]
+                    ]
+
+            res['setpoints'] = set_points[:]
+
+        if 0x42 in self._value_index_mapping:
+            res['operating_state'] = (
+                self._value_index_mapping[0x42].operating_state.data
+            )
+
+        if 0x40 in self._value_index_mapping:
+            res['operating_mode'] = self._value_index_mapping[0x40].mode.data
+
+        if 0x45 in self._value_index_mapping:
+            res['fan_state'] = self._value_index_mapping[0x45].fan_state.data
+
+        if 0x44 in self._value_index_mapping:
+            res['fan_mode'] = self._value_index_mapping[0x44].fan_mode.data
+
+        return res
+
+    @property
+    def thermostat_operating_mode(self):
+        """
+        The command 0x40 (COMMAND_CLASS_THERMOSTAT_MODE) of this node.
+
+        :rtype value: String
+
+        """
+        if 0x40 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x40].mode.data
+
+    @thermostat_operating_mode.setter
+    def thermostat_operating_mode(self, value):
         """
         The command 0x40 (COMMAND_CLASS_THERMOSTAT_MODE) of this node.
         Set MODE to value (using value).
@@ -802,13 +924,41 @@ class ZWaveNodeThermostat(ZWaveNodeInterface):
 
         """
         logger.debug(u"set_thermostat_mode value:%s", value)
-        for v in self.get_thermostats():
-            if self.values[v].command_class == 0x40 and self.values[v].label == 'Mode':
-                self.values[v].data = value
-                return True
-        return False
 
-    def set_thermostat_fan_mode(self, value):
+        if 0x40 not in self._value_index_mapping:
+            return
+
+        self._value_index_mapping[0x40].mode.data = value
+
+    @property
+    def thermostat_operating_state(self):
+        """
+        The command 0x42 (COMMAND_CLASS_THERMOSTAT_OPERATING_STATE) of this node.
+        Get thermostat state.
+
+        :rtype value: String
+
+        """
+        if 0x42 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x42].operating_state.data
+
+    @property
+    def thermostat_fan_mode(self):
+        """
+        The command 0x44 (COMMAND_CLASS_THERMOSTAT_FAN_MODE) of this node.
+
+        :rtype value: String
+
+        """
+        if 0x44 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x44].fan_mode.data
+
+    @thermostat_fan_mode.setter
+    def thermostat_fan_mode(self, value):
         """
         The command 0x44 (COMMAND_CLASS_THERMOSTAT_FAN_MODE) of this node.
         Set FAN_MODE to value (using value).
@@ -818,72 +968,187 @@ class ZWaveNodeThermostat(ZWaveNodeInterface):
 
         """
         logger.debug(u"set_thermostat_fan_mode value:%s", value)
-        for v in self.get_thermostats():
-            if self.values[v].command_class == 0x44 and self.values[v].label == 'Fan Mode':
-                self.values[v].data = value
-                return True
-        return False
 
-    def set_thermostat_heating(self, value):
+        if 0x44 not in self._value_index_mapping:
+            return
+
+        self._value_index_mapping[0x44].fan_mode.data = value
+
+    @property
+    def thermostat_fan_state(self):
+        """
+        The command 0x45 (COMMAND_CLASS_THERMOSTAT_FAN_STATE) of this node.
+        Get thermostat state.
+
+        :rtype value: String
+
+        """
+        if 0x45 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x45].fan_state.data
+
+    @property
+    def thermostat_heating(self):
+        """
+        The command 0x43 (COMMAND_CLASS_THERMOSTAT_SETPOINT) of this node.
+        Get Target Heat temperature.
+        """
+        if 0x43 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x43].heating.data
+
+    @thermostat_heating.setter
+    def thermostat_heating(self, value):
         """
         The command 0x43 (COMMAND_CLASS_THERMOSTAT_SETPOINT) of this node.
         Set Target Heat temperature.
 
         :param value: The Temperature.
-        :type value: Decimal
+        :type value: float
 
         """
-        logger.debug(u"set_thermostat_heating value:%s", value)
-        for v in self.get_thermostats():
-            if self.values[v].command_class == 0x43 and self.values[v].label in ('Heating 1', 'Heating'):
-                self.values[v].data = value
-                return True
-        return False
+        if 0x43 not in self._value_index_mapping:
+            return
 
-    def set_thermostat_cooling(self, value):
+        logger.debug(u"set_thermostat_heating value:%s", value)
+        self._value_index_mapping[0x43].heating.data = value
+
+    @property
+    def thermostat_economy_heating(self):
         """
         The command 0x43 (COMMAND_CLASS_THERMOSTAT_SETPOINT) of this node.
-        Set MODE to value (using value).
+        Get Target Heat temperature.
+        """
+        if 0x43 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x43].economy_heating.data
+
+    @thermostat_economy_heating.setter
+    def thermostat_economy_heating(self, value):
+        """
+        The command 0x43 (COMMAND_CLASS_THERMOSTAT_SETPOINT) of this node.
+        Set Target Heat temperature.
+
+        :param value: The Temperature.
+        :type value: float
+
+        """
+        if 0x43 not in self._value_index_mapping:
+            return
+
+        logger.debug(u"set_thermostat_economy_heating value:%s", value)
+        self._value_index_mapping[0x43].economy_heating.data = value
+
+    @property
+    def thermostat_away_heating(self):
+        """
+        The command 0x43 (COMMAND_CLASS_THERMOSTAT_SETPOINT) of this node.
+        Get Target Heat temperature.
+        """
+        if 0x43 not in self._value_index_mapping:
+            return
+        return self._value_index_mapping[0x43].away_heating.data
+
+    @thermostat_away_heating.setter
+    def thermostat_away_heating(self, value):
+        """
+        The command 0x43 (COMMAND_CLASS_THERMOSTAT_SETPOINT) of this node.
+        Set Target Heat temperature.
+
+        :param value: The Temperature.
+        :type value: float
+
+        """
+        if 0x43 not in self._value_index_mapping:
+            return
+
+        logger.debug(u"set_thermostat_away_heating value:%s", value)
+        self._value_index_mapping[0x43].away_heating.data = value
+
+
+    @property
+    def thermostat_cooling(self):
+        """
+        The command 0x43 (COMMAND_CLASS_THERMOSTAT_SETPOINT) of this node.
+        Get Target Cool temperature.
+        """
+        if 0x43 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x43].cooling.data
+
+    @thermostat_cooling.setter
+    def thermostat_cooling(self, value):
+        """
+        The command 0x43 (COMMAND_CLASS_THERMOSTAT_SETPOINT) of this node.
         Set Target Cool temperature.
 
         :param value: The Temperature.
-        :type value: Decimal
+        :type value: float
 
         """
+        if 0x43 not in self._value_index_mapping:
+            return
+
         logger.debug(u"set_thermostat_cooling value:%s", value)
-        for v in self.get_thermostats():
-            if self.values[v].command_class == 0x43 and self.values[v].label in ('Cooling 1', 'Cooling'):
-                self.values[v].data = value
-                return True
-        return False
+        self._value_index_mapping[0x43].cooling.data = value
 
-    def get_thermostat_state(self):
+    @property
+    def thermostat_economy_cooling(self):
         """
-        The command 0x42 (COMMAND_CLASS_THERMOSTAT_OPERATING_STATE) of this node.
-        Get thermostat state.
-
-        :param value: None
-        :rtype value: String
-
+        The command 0x43 (COMMAND_CLASS_THERMOSTAT_SETPOINT) of this node.
+        Get Target Cool temperature.
         """
-        for v in self.get_thermostats():
-            if self.values[v].command_class == 0x42 and self.values[v].label == 'Operating State':
-                return self.values[v].data
-        return None
+        if 0x43 not in self._value_index_mapping:
+            return
 
-    def get_thermostat_fan_state(self):
+        return self._value_index_mapping[0x43].economy_cooling.data
+
+    @thermostat_economy_cooling.setter
+    def thermostat_economy_cooling(self, value):
         """
-        The command 0x45 (COMMAND_CLASS_THERMOSTAT_FAN_STATE) of this node.
-        Get thermostat state.
+        The command 0x43 (COMMAND_CLASS_THERMOSTAT_SETPOINT) of this node.
+        Set Target Cool temperature.
 
-        :param value: None
-        :rtype value: String
+        :param value: The Temperature.
+        :type value: float
 
         """
-        for v in self.get_thermostats():
-            if self.values[v].command_class == 0x45 and self.values[v].label == 'Fan State':
-                return self.values[v].data
-        return None
+        if 0x43 not in self._value_index_mapping:
+            return
+
+        logger.debug(u"set_thermostat_economy_cooling value:%s", value)
+        self._value_index_mapping[0x43].economy_cooling.data = value
+
+    @property
+    def thermostat_away_cooling(self):
+        """
+        The command 0x43 (COMMAND_CLASS_THERMOSTAT_SETPOINT) of this node.
+        Get Target Cool temperature.
+        """
+        if 0x43 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x43].away_cooling.data
+
+    @thermostat_away_cooling.setter
+    def thermostat_away_cooling(self, value):
+        """
+        The command 0x43 (COMMAND_CLASS_THERMOSTAT_SETPOINT) of this node.
+        Set Target Cool temperature.
+
+        :param value: The Temperature.
+        :type value: float
+
+        """
+        if 0x43 not in self._value_index_mapping:
+            return
+
+        logger.debug(u"set_thermostat_away_cooling value:%s", value)
+        self._value_index_mapping[0x43].away_cooling.data = value
 
 
 class ZWaveNodeSecurity(ZWaveNodeInterface):
@@ -892,7 +1157,30 @@ class ZWaveNodeSecurity(ZWaveNodeInterface):
 
     """
 
-    def get_protections(self):
+    @property
+    def protection(self):
+        """
+        The command 0x75 (COMMAND_CLASS_PROTECTION) of this node.
+        Get/Set Protection
+
+        :return: The value of the value
+        :rtype: str
+        """
+
+        if 0x75 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x75].protection.data
+
+    @protection.setter
+    def protection(self, value):
+        if 0x75 not in self._value_index_mapping:
+            return
+
+        self._value_index_mapping[0x75].protection.data = value
+
+    @property
+    def protections(self):
         """
         The command 0x75 (COMMAND_CLASS_PROTECTION) of this node.
         Retrieve the list of values to consider as protection.
@@ -907,54 +1195,140 @@ class ZWaveNodeSecurity(ZWaveNodeInterface):
         :rtype: dict()
 
         """
-        return self.get_values(class_id=0x75, genre='System', \
-            type='List', readonly=False, writeonly=False)
 
-    def set_protection(self, value_id, value):
-        """
-        The command 0x75 (COMMAND_CLASS_PROTECTION) of this node.
-        Set protection to value (using value value_id).
+        if 0x75 not in self._value_index_mapping:
+            return {}
 
-        :param value_id: The value to set protection
-        :type value_id: int
-        :param value: A predefined string
-        :type value: str
+        res = {}
+        for value in self._value_index_mapping[0x75]:
+            if value is None:
+                continue
 
-        """
-        if value_id in self.get_protections():
-            self.values[value_id].data = value
-            return True
-        return False
+            res[value.value_id] = value
 
-    def get_protection_item(self, value_id):
-        """
-        The command 0x75 (COMMAND_CLASS_PROTECTION) of this node.
-        Return the current value (using value value_id) of a protection.
+        return res
 
-        :param value_id: The value to retrieve protection value
-        :type value_id: int
-        :return: The value of the value
-        :rtype: str
-
-        """
-        if value_id in self.get_protections():
-            return self.values[value_id].data
-        return None
-
-    def get_protection_items(self, value_id):
+    @property
+    def protection_items(self):
         """
         The command 0x75 (COMMAND_CLASS_PROTECTION) of this node.
         Return the all the possible values (using value value_id) of a protection.
 
-        :param value_id: The value to retrieve items list
-        :type value_id: int
         :return: The value of the value
         :rtype: set()
 
         """
-        if value_id in self.get_protections():
-            return self.values[value_id].data_items
-        return None
+
+        if 0x75 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x75].protection.data_items
+
+
+class ZWaveSoundSwitch(ZWaveNodeInterface):
+    """
+    Represents an interface to Security Commands
+
+    """
+
+    @property
+    def volume(self):
+        """
+        The command 0x75 (COMMAND_CLASS_SOUND_SWITCH) of this node.
+        Get/Set Volume
+
+        :return: new_volume
+        :rtype: str
+        """
+
+        if 0x79 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x79].volume.data
+
+    @volume.setter
+    def volume(self, value):
+        if 0x79 not in self._value_index_mapping:
+            return
+
+        self._value_index_mapping[0x79].volume.data = value
+
+    @property
+    def tone(self):
+        """
+        The command 0x75 (COMMAND_CLASS_SOUND_SWITCH) of this node.
+        Get/Set Tone
+
+        :return: tone
+        :rtype: str
+        """
+
+        if 0x79 not in self._value_index_mapping:
+            return
+
+        return self._value_index_mapping[0x79].tone.data
+
+    @tone.setter
+    def tone(self, value):
+        if 0x79 not in self._value_index_mapping:
+            return
+
+        self._value_index_mapping[0x79].tone.data = value
+
+    @property
+    def tone_items(self):
+        """
+        The command 0x75 (COMMAND_CLASS_PROTECTION) of this node.
+        Return the all the possible values (using value value_id) of a protection.
+
+        :return: The value of the value
+        :rtype: set()
+
+        """
+
+        if 0x79 not in self._value_index_mapping:
+            return []
+
+        return self._value_index_mapping[0x75].tone.data_items
+
+
+class ZWaveSimpleAVControl(ZWaveNodeInterface):
+    """
+    Represents an interface to Security Commands
+
+    """
+
+    def av_command_send(self, command):
+        """
+        The command 0x94 (COMMAND_CLASS_SIMPLE_AV_CONTROL) of this node.
+
+        :param command: one of the values returned from av_commands
+        :type command: str
+        """
+
+        if 0x94 not in self._value_index_mapping:
+            return False
+
+        self._value_index_mapping[0x94].command.data = command
+        return True
+
+    @property
+    def av_commands(self):
+        """
+        The command 0x94 (COMMAND_CLASS_SIMPLE_AV_CONTROL) of this node.
+        Return available commands
+
+        :return: list of available commands
+        :rtype: list
+
+        """
+
+        if 0x94 not in self._value_index_mapping:
+            return []
+
+        return list(
+            itm for itm in self._value_index_mapping[0x94].command.data_items
+        )
 
 
 class ZWaveNodeDoorLock(ZWaveNodeInterface):
@@ -962,7 +1336,8 @@ class ZWaveNodeDoorLock(ZWaveNodeInterface):
     Represents an interface to door lock and user codes associated with door locks
     """
 
-    def get_doorlocks(self):
+    @property
+    def door_locks(self):
         """
         The command 0x62 (COMMAND_CLASS_DOOR_LOCK) of this node.
         Retrieves the list of values to consider as doorlocks.
@@ -978,95 +1353,55 @@ class ZWaveNodeDoorLock(ZWaveNodeInterface):
         :rtype: dict()
 
         """
-        return self.get_values(class_id=0x62, genre='User', type='Bool', readonly=False, writeonly=False)
 
-    def set_doorlock(self, value_id, value):
+        if 0x62 not in self._value_index_mapping:
+            return {}
+
+        res = {}
+        for value in self._value_index_mapping[0x62]:
+            if value is None:
+                continue
+
+            res[value.value_id] = value
+
+        return res
+
+    @property
+    def door_lock(self):
         """
         The command 0x62 (COMMAND_CLASS_DOOR_LOCK) of this node.
-        Sets doorlock to value (using value_id).
+        Gets/Sets doorlock
 
-        :param value_id: The value to retrieve state from
-        :type value_id: int
-        :param value: True or False
-        :type value: bool
-
+        :return: True/False, None
+        Setter: True/False
         """
-        if value_id in self.get_doorlocks():
-            self.values[value_id].data = value
-            return True
-        return False
 
-    def get_usercode(self, index):
-        """
-        Retrieve particular usercode value by index.
-        Certain values such as user codes have index start from 0
-        to max number of usercode supported and is useful for getting
-        usercodes by the index.
-
-        :param index: The index of usercode value
-        :type index: int
-        :return: The user code at given index on this node
-        :rtype: ZWaveValue
-
-        """
-        usercode = self.get_usercodes(index)
-        if len(usercode) == 0:
+        if 0x62 not in self._value_index_mapping:
             return None
-        return list(usercode.values())[0]
 
-    def get_usercodes(self, index='All'):
+        return self._value_index_mapping[0x62].lock.data
+
+    @door_lock.setter
+    def door_lock(self, value):
+        if 0x62 not in self._value_index_mapping:
+            return
+
+        self._value_index_mapping[0x62].lock.data = value
+
+    @property
+    def user_codes(self):
         """
         The command 0x63 (COMMAND_CLASS_USER_CODE) of this node.
-        Retrieves the list of value to consider as usercodes.
-        Filter rules are :
-
-            command_class = 0x63
-            genre = "User"
-            type = "Raw"
-            readonly = False
-            writeonly = False
-
-        :return: The list of user codes on this node
-        :rtype: dict()
-
+        :return: None or UserCodes instance
         """
-        return self.get_values(class_id=0x63, type='Raw', genre='User', readonly=False, writeonly=False, index=index)
 
-    def set_usercode(self, value_id, value):
-        """
-        The command 0x63 (COMMAND_CLASS_USER_CODE) of this node.
-        Sets usercode to value (using value_id).
+        if 0x63 not in self._value_index_mapping:
+            return
 
-        :param value_id: The value to retrieve state from
-        :type value_id: int
-        :param value: User Code as string
-        :type value: str
+        return UserCodes(self._value_index_mapping[0x63])
 
-        """
-        if value_id in self.get_usercodes():
-            self.values[value_id].data = value
-            return True
-        return False
-
-    def set_usercode_at_index(self, index, value):
-        """
-        The command 0x63 (COMMAND_CLASS_USER_CODE) of this node.
-        Sets usercode to value (using index of value)
-
-        :param index: The index of value to retrieve state from
-        :type index: int
-        :param value: User Code as string
-        :type value: str
-
-        """
-        usercode = self.get_usercode(index)
-        if usercode:
-            usercode.data = value
-            return True
-        return False
-
-
-    def get_doorlock_logs(self):
+    @property
+    def doorlock_logs(self):
         """
         The command 0x4c (COMMAND_CLASS_DOOR_LOCK_LOGGING) of this node.
         Retrieves the value consisting of log records.
@@ -1081,4 +1416,98 @@ class ZWaveNodeDoorLock(ZWaveNodeInterface):
         :rtype: dict()
 
         """
-        return self.get_values(class_id=0x4c, type='String', genre='User', readonly=True)
+        res = []
+
+        if 0x4c not in self._value_index_mapping:
+            return res
+
+        event = threading.Event()
+        indices = self._value_index_mapping[0x4c]
+
+        for i in range(indices.system_config_max_records.data):
+            indices.get_record_no.data = i
+            if indices.log_record.data in res:
+                event.wait(0.2)
+
+            if indices.log_record.data not in res:
+                res += [indices.log_record.data]
+        return res
+
+
+class UserCodes(object):
+
+    def __init__(self, indices):
+        '''
+        start = 1
+        end = 254
+        refresh = 255
+        remove_code = 256
+        count = 257
+        raw_value = 258
+        raw_value_index = 259
+        max_entry = raw_value_index
+        '''
+        self._indices = indices
+
+    def __setitem__(self, key, value):
+        if isinstance(key, int):
+            if self._indices.start <= key <= self._indices.end:
+                if value not in self:
+                    self._indices[key].data = value
+            else:
+                raise IndexError(str(key))
+
+        else:
+            for i in range(self._indices.start, self._indices.end + 1):
+                if (
+                    self._indices[i] is not None and
+                    self._indices[i].label == key
+                ):
+                    self._indices[i].data = value
+                    break
+            else:
+                i = self._indices.start + len(self)
+
+                if i > self._indices.end:
+                    raise KeyError('Maximum Codes reached.')
+                self._indices[i].label = key
+                self._indices[i].data = value
+
+    def append(self, code):
+        if code in self:
+            return False
+        try:
+            self[self._indices.start + len(self)] = code
+            return True
+        except IndexError:
+            return False
+
+    def remove(self, code):
+        if code in self:
+            self._indices.remove_code.data = code
+            return True
+        return False
+
+    def __radd__(self, other):
+        for code in other:
+            if not self.append(code):
+                break
+
+    def __contains__(self, item):
+        for i in range(self._indices.start, self._indices.end + 1):
+            if (
+                self._indices[i] is not None and
+                item in (self._indices[i].data, self._indices[i].label)
+            ):
+                return True
+
+        return False
+
+    def extend(self, codes):
+        for code in codes:
+            if not self.append(code):
+                return False
+        return True
+
+    def __len__(self):
+        return self._indices.count.data

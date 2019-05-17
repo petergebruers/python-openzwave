@@ -27,10 +27,11 @@ import sys
 from libopenzwave import PyStatNode
 from openzwave.object import ZWaveObject
 from openzwave.group import ZWaveGroup
-from openzwave.value import ZWaveValue
+from openzwave.value import ZWaveValue, ValueIndexMapping
 from openzwave.command import ZWaveNodeBasic, ZWaveNodeSwitch
 from openzwave.command import ZWaveNodeSensor, ZWaveNodeThermostat
 from openzwave.command import ZWaveNodeSecurity, ZWaveNodeDoorLock
+from openzwave.command import ZWaveSimpleAVControl, ZWaveSoundSwitch
 
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
@@ -47,7 +48,8 @@ logger.addHandler(NullHandler())
 class ZWaveNode(ZWaveObject,
                 ZWaveNodeBasic, ZWaveNodeSwitch,
                 ZWaveNodeSensor, ZWaveNodeThermostat,
-                ZWaveNodeSecurity, ZWaveNodeDoorLock):
+                ZWaveNodeSecurity, ZWaveNodeDoorLock,
+                ZWaveSimpleAVControl, ZWaveSoundSwitch):
     """
     Represents a single Node within the Z-Wave Network.
 
@@ -69,6 +71,7 @@ class ZWaveNode(ZWaveObject,
         ZWaveObject.__init__(self, node_id, network)
         #No cache management for values in nodes
         self.values = dict()
+        self._value_index_mapping = dict()
         self._is_locked = False
         self._isReady = False
 
@@ -415,12 +418,17 @@ class ZWaveNode(ZWaveObject,
 
         :param class_id: the COMMAND_CLASS to get values
         :type class_id: hexadecimal code or string
-        :type writeonly: 'All' or True or False
         :rtype: set() of classId
 
         """
-        #print class_id
-        return self.get_values(class_id=class_id)
+
+        res = {}
+        if class_id in self._value_index_mapping:
+            for value in self._value_index_mapping[class_id]:
+                if value is not None:
+                    res[value.value_id] = value
+
+        return res
 
     def get_values(self, class_id='All', genre='All', type='All', \
         readonly='All', writeonly='All', index='All', label='All'):
@@ -488,6 +496,16 @@ class ZWaveNode(ZWaveObject,
 
         """
         value = ZWaveValue(value_id, network=self.network, parent=self)
+
+        command_class = value.command_class
+        index = value.index
+
+        if command_class not in self._value_index_mapping:
+            self._value_index_mapping[command_class] = (
+                ValueIndexMapping(command_class)
+            )
+
+        self._value_index_mapping[command_class][index] = value
         self.values[value_id] = value
 
     def change_value(self, value_id):
@@ -523,7 +541,9 @@ class ZWaveNode(ZWaveObject,
 
         """
         if value_id in self.values:
-            logger.debug("Remove value : %s", self.values[value_id])
+            value = self.values[value_id]
+            self._value_index_mapping[value.command_class][value.index] = None
+            logger.debug("Remove value : %s", value)
             del self.values[value_id]
             return True
         return False
