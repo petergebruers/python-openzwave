@@ -112,6 +112,8 @@ class TestOzwSrc(TestLib):
             alls = re.findall(r"ValueType_(\w*)", values, re.MULTILINE)
             print(alls)
             for i,j in zip(range(len(alls)-2),alls):
+                if j == 'Max':
+                    break
                 print(libopenzwave.PyValueTypes[i], j)
                 self.assertEqual(libopenzwave.PyValueTypes[i], j)
 
@@ -177,17 +179,23 @@ class TestOzwSrc(TestLib):
 
     def test_110_option_names(self):
         with open(os.path.join (OZWDIR, 'cpp', 'src', 'Options.cpp'), 'r') as f:
-            lines = ''.join(f.readlines())
-            #~ print(lines)
-            values = re.search(r"s_instance = new Options(.*)return s_instance", lines, re.MULTILINE|re.DOTALL).group(1)
-            #~ print(values)
-            alls = re.findall(r's_instance->AddOption(\w*).*\([\t]*"(\w*)",[\t]*(.*);(.*)$', values, re.MULTILINE)
-            #~ alls = re.findall(r's_instance->AddOption(\w*).*\(\t"(\w*).*\t(.*) \);(.*)$', values, re.MULTILINE)
-            print(alls)
-            for i in alls:
-                print(i)
-                self.assertTrue(i[1] in libopenzwave.PyOptionList)
-                self.assertEqual(libopenzwave.PyOptionList[i[1]]['type'], i[0])
+            data = f.read()
+
+        lines = data.split('\n')
+
+        #~ print(lines)
+
+        for line in lines:
+            line = line.strip()
+
+            if line.startswith('s_instance->'):
+                data_type, line = line.split('(', 1)
+                line = line.split(',', 1)[0]
+                option = line.strip().replace('"', '')
+                data_type = data_type.replace('s_instance->AddOption', '').strip()
+                print(line, option)
+                self.assertTrue(option in libopenzwave.PyOptionList)
+                self.assertEqual(libopenzwave.PyOptionList[option]['type'], data_type)
 
     def test_120_log_level(self):
         with open(os.path.join (OZWDIR, 'cpp', 'src', 'platform', 'Log.h'), 'r') as f:
@@ -204,7 +212,7 @@ class TestOzwSrc(TestLib):
 
     def test_130_manager_functions(self):
         PRIVATES = ['SetDriverReady', 'NotifyWatchers']
-        RENAMES = [('SoftReset', ['SoftResetController']), 
+        RENAMES = [('SoftReset', ['SoftResetController']),
                     ('GetValueListSelection', ['GetValueListSelectionStr','GetValueListSelectionNum']),
                     ('SetValueListSelection', ['SetValue']),
                     ('AddSceneValueListSelection', ['AddSceneValue','AddSceneValue']),

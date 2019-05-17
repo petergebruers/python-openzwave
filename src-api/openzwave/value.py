@@ -1313,7 +1313,6 @@ _index_mapping = {
 # TODO: don't report controller node as sleeping
 # TODO: allow value identification by device/index/instance
 class ZWaveValue(ZWaveObject):
-
     """
     Represents a single value.
     """
@@ -1614,10 +1613,21 @@ class ZWaveValue(ZWaveObject):
         :rtype: str
 
         """
+
+        if self.type == 'BitSet':
+            try:
+                value = self._network.manager.getValue(self.value_id)
+                value = "{0:b}".format(value)
+                return str(list(bool(int(item)) for item in list(value)))[1:-1]
+            except:
+                logger.error(traceback.format_exc())
+                return''
+
         try:
             return self._network.manager.getValueAsString(self.value_id)
         except:
             logger.error(traceback.format_exc())
+            return ''
 
     @property
     def data_items(self):
@@ -1650,6 +1660,8 @@ class ZWaveValue(ZWaveObject):
             except:
                 logger.error(traceback.format_exc())
                 return []
+        elif self.type == 'BitSet':
+            return 'A group of boolean 10010101 (binary)'
         else:
             return "Unknown"
 
@@ -1734,6 +1746,51 @@ class ZWaveValue(ZWaveObject):
                 else:
                     new_data = None
         return new_data
+
+    def get_bit(self, pos):
+        """
+        Get a single bit value. This method is only for BitSet value types.
+
+        :param pos: Bit position.
+        :type pos: int
+        :return: Can be one of the following values.
+
+            Possible Values:
+
+                * `True`: The bit is set.
+                * `False`: The bit is not set.
+                * `None`: The value type is not BitSet
+
+        :rtype: bool, None
+        """
+        if self.type == 'BitSet':
+            return self._network.manager.getValueAsBitSet(self.value_id, pos)
+
+    def set_bit(self, pos, value):
+        """
+        Get a single bit value. This method is only for BitSet value types.
+
+        :param pos: Bit position.
+        :type pos: int
+        :param value: Can be one of the following values.
+
+            Allowed Values:
+
+                * `True`: sets the bit
+                * `False`: un-sets the bit
+
+        :return: Can be one of the following values.
+
+            Possible Values:
+
+                * `True`: Command was sent.
+                * `False`: Command failed.
+                * `None`: the value type is not BitSet
+
+        :rtype: bool, None
+        """
+        if self.type == 'BitSet':
+            return self._network.manager.setValue(self.value_id, pos, value)
 
     @property
     def is_set(self):
