@@ -2526,67 +2526,72 @@ Node Naming command class, the new location will be sent to the node.
         '''
         self.manager.SetNodeLocation(homeid, nodeid, str_to_cppstr(location))
 
-    def setNodeOn(self, homeid, nodeid):
-        '''
-.. _setNodeOn:
+# ******************** DEPRECATED ************************
+#     def setNodeOn(self, homeid, nodeid):
+#         '''
+# .. _setNodeOn:
+#
+# Turns a node on
+#
+# This is a helper method to simplify basic control of a node.  It is the
+# equivalent of changing the level reported by the nodes Basic command class to
+# 255, and will generate a ValueChanged notification from that class.  This
+# command will turn on the device at its last known level, if supported by the
+# device, otherwise it will turn it on at 100%.
+#
+# :param homeId: The Home ID of the Z-Wave controller that manages the node.
+# :type homeId: int
+# :param nodeId: The ID of the node to be changed.
+# :type nodeId: int
+# :see: setNodeOff_, setNodeLevel_
+#
+#         '''
+#
+#         self.manager.SetNodeOn(homeid, nodeid)
 
-Turns a node on
 
-This is a helper method to simplify basic control of a node.  It is the
-equivalent of changing the level reported by the nodes Basic command class to
-255, and will generate a ValueChanged notification from that class.  This
-command will turn on the device at its last known level, if supported by the
-device, otherwise it will turn it on at 100%.
+# ******************** DEPRECATED ************************
+#     def setNodeOff(self, homeid, nodeid):
+#         '''
+# .. _setNodeOff:
+#
+# Turns a node off
+#
+# This is a helper method to simplify basic control of a node.  It is the
+# equivalent of changing the level reported by the nodes Basic command class to
+# zero, and will generate a ValueChanged notification from that class.
+#
+# :param homeId: The Home ID of the Z-Wave controller that manages the node.
+# :type homeId: int
+# :param nodeId: The ID of the node to be changed.
+# :type nodeId: int
+# :see: setNodeOn_, setNodeLevel_
+#
+#         '''
+#         self.manager.SetNodeOff(homeid, nodeid)
 
-:param homeId: The Home ID of the Z-Wave controller that manages the node.
-:type homeId: int
-:param nodeId: The ID of the node to be changed.
-:type nodeId: int
-:see: setNodeOff_, setNodeLevel_
 
-        '''
-
-        self.manager.SetNodeOn(homeid, nodeid)
-
-    def setNodeOff(self, homeid, nodeid):
-        '''
-.. _setNodeOff:
-
-Turns a node off
-
-This is a helper method to simplify basic control of a node.  It is the
-equivalent of changing the level reported by the nodes Basic command class to
-zero, and will generate a ValueChanged notification from that class.
-
-:param homeId: The Home ID of the Z-Wave controller that manages the node.
-:type homeId: int
-:param nodeId: The ID of the node to be changed.
-:type nodeId: int
-:see: setNodeOn_, setNodeLevel_
-
-        '''
-        self.manager.SetNodeOff(homeid, nodeid)
-
-    def setNodeLevel(self, homeid, nodeid, level):
-        '''
-.. _setNodeLevel:
-
-Sets the basic level of a node
-
-This is a helper method to simplify basic control of a node.  It is the
-equivalent of changing the value reported by the nodes Basic command class
-and will generate a ValueChanged notification from that class.
-
-:param homeId: The Home ID of the Z-Wave controller that manages the node.
-:type homeId: int
-:param nodeId: The ID of the node to be changed.
-:type nodeId: int
-:param level: The level to set the node.  Valid values are 0-99 and 255.  Zero is off and 99 is fully on.  255 will turn on the device at its last known level (if supported).
-:type level: int
-:see: setNodeOn_, setNodeOff_
-
-        '''
-        self.manager.SetNodeLevel(homeid, nodeid, level)
+# ******************** DEPRECATED ************************
+#     def setNodeLevel(self, homeid, nodeid, level):
+#         '''
+# .. _setNodeLevel:
+#
+# Sets the basic level of a node
+#
+# This is a helper method to simplify basic control of a node.  It is the
+# equivalent of changing the value reported by the nodes Basic command class
+# and will generate a ValueChanged notification from that class.
+#
+# :param homeId: The Home ID of the Z-Wave controller that manages the node.
+# :type homeId: int
+# :param nodeId: The ID of the node to be changed.
+# :type nodeId: int
+# :param level: The level to set the node.  Valid values are 0-99 and 255.  Zero is off and 99 is fully on.  255 will turn on the device at its last known level (if supported).
+# :type level: int
+# :see: setNodeOn_, setNodeOff_
+#
+#         '''
+#         self.manager.SetNodeLevel(homeid, nodeid, level)
 
     def isNodeInfoReceived(self, homeid, nodeid):
         '''
@@ -3823,7 +3828,7 @@ Get the number of switch points defined in a schedule
         else :
             return 0
 
-#
+# ******************** DEPRECATED ************************
 # -----------------------------------------------------------------------------
 # SwitchAll
 # -----------------------------------------------------------------------------
@@ -3832,33 +3837,34 @@ Get the number of switch points defined in a schedule
 # then followed up with individual commands to each node (because broadcasts are
 # not routed, the message might not otherwise reach all the nodes).
 #
-    def switchAllOn(self, homeid):
-        '''
-.. _switchAllOn:
+#     def switchAllOn(self, homeid):
+#         '''
+# .. _switchAllOn:
+#
+# Switch all devices on.  All devices that support the SwitchAll command class
+# will be turned on.
+#
+# :param homeId: The Home ID of the Z-Wave controller that manages the node.
+# :type homeId: int
+# :see: switchAllOff_
+#
+#         '''
+#         self.manager.SwitchAllOn(homeid)
+#
+#     def switchAllOff(self, homeid):
+#         '''
+# .. _switchAllOff:
+#
+# Switch all devices off.  All devices that support the SwitchAll command class
+# will be turned off.
+#
+# :param homeId: The Home ID of the Z-Wave controller that manages the node.
+# :type homeId: int
+# :see: switchAllOn_
+#
+#         '''
+#         self.manager.SwitchAllOff(homeid)
 
-Switch all devices on.  All devices that support the SwitchAll command class
-will be turned on.
-
-:param homeId: The Home ID of the Z-Wave controller that manages the node.
-:type homeId: int
-:see: switchAllOff_
-
-        '''
-        self.manager.SwitchAllOn(homeid)
-
-    def switchAllOff(self, homeid):
-        '''
-.. _switchAllOff:
-
-Switch all devices off.  All devices that support the SwitchAll command class
-will be turned off.
-
-:param homeId: The Home ID of the Z-Wave controller that manages the node.
-:type homeId: int
-:see: switchAllOn_
-
-        '''
-        self.manager.SwitchAllOff(homeid)
 
 # -----------------------------------------------------------------------------
 # Configuration Parameters
@@ -4658,407 +4664,409 @@ Notification::Type_ControllerCommand
         '''
         return self.manager.DeleteButton(homeid, nodeid, buttonid)
 
+
+# ******************** DEPRECATED ************************
 #-----------------------------------------------------------------------------
 # Scene commands
 #-----------------------------------------------------------------------------
-
-    def getNumScenes(self):
-        '''
-.. _getNumScenes:
-
-Gets the number of scenes that have been defined
-
-:return: The number of scenes.
-:rtype: int
-:see: getAllScenes_, sceneExists_, \
-createScene_, removeScene_, activateScene_, \
-getSceneLabel_, setSceneLabel_, \
-removeSceneValue_, addSceneValue_, setSceneValue_, \
-sceneGetValues_, removeAllScenes_
-
-       '''
-        return self.manager.GetNumScenes()
-
-    def getAllScenes(self):
-        '''
-.. _getAllScenes:
-
-Gets a set of all the SceneIds
-
-:return: A set() containing neighboring scene IDs
-:rtype: set()
-:see: getNumScenes_, sceneExists_, \
-createScene_, removeScene_, activateScene_, \
-getSceneLabel_, setSceneLabel_, \
-removeSceneValue_, addSceneValue_, setSceneValue_, \
-sceneGetValues_, removeAllScenes_
-
-        '''
-        data = set()
-        cdef uint32_t size = self.manager.GetNumScenes()
-        # Allocate memory
-        cdef uint8_t** dbuf = <uint8_t**>malloc(sizeof(uint8_t)*size)
-        # return value is pointer to uint8_t[]
-        cdef uint32_t count = self.manager.GetAllScenes(dbuf)
-        if count == 0:
-            #Don't need to allocate memory.
-            free(dbuf)
-            return data
-        cdef RetAlloc retuint8 = RetAlloc(count)
-        cdef uint8_t* p
-        cdef uint32_t start = 0
-        if count:
-            try:
-                p = dbuf[0] # p is now pointing at first element of array
-                for i in range(start, count):
-                    retuint8.data[i] = p[0]
-                    data.add(retuint8.data[i])
-                    p += 1
-            finally:
-                # Free memory
-                free(dbuf)
-                pass
-        return data
-
-    def removeAllScenes(self, homeid):
-        '''
-.. _removeAllScenes:
-
-Delete all scenes.
-
-:param homeid: The Home ID of the Z-Wave controller that manages the node.
-:type homeid: int
-:see: getNumScenes_, getAllScenes_, sceneExists_, \
-removeScene_, activateScene_, getSceneLabel_, setSceneLabel_, \
-removeSceneValue_, addSceneValue_, setSceneValue_, \
-sceneGetValues_
-
-       '''
-        self.manager.RemoveAllScenes(homeid)
-
-    def removeScene(self, sceneId):
-        '''
-.. _removeScene:
-
-Remove an existing Scene.
-
-:param sceneId: The unique Scene ID to be removed.
-:type sceneId: int
-:return: True if scene was removed.
-:rtype: bool
-:see: getNumScenes_, getAllScenes_, sceneExists_, \
-createScene_, activateScene_, getSceneLabel_, setSceneLabel_, \
-removeSceneValue_, addSceneValue_, setSceneValue_, \
-sceneGetValues_, removeAllScenes_
-
-        '''
-        return self.manager.RemoveScene(sceneId)
-
-    def createScene(self):
-        '''
-.. _createScene:
-
-Create a Scene.
-
-:return: Scene ID used to reference the scene. 0 is failure result.
-:rtype: id
-:see: getNumScenes_, getAllScenes_, sceneExists_, \
-removeScene_, activateScene_, getSceneLabel_, setSceneLabel_, \
-removeSceneValue_, addSceneValue_, setSceneValue_, \
-sceneGetValues_, removeAllScenes_
-
-        '''
-        return self.manager.CreateScene()
-
-    def sceneGetValues(self, uint8_t id):
-        '''
-.. _sceneGetValues:
-
-Retrieve the list of values from a scene.
-
-:param id: The ID of a scene.
-:type id: int
-:rtype: dict()
-:return: A dict containing : {valueid : value, ...}
-:see: getNumScenes_, getAllScenes_, sceneExists_, \
-createScene_, removeScene_, getSceneLabel_, setSceneLabel_, \
-removeSceneValue_, addSceneValue_, setSceneValue_, \
-sceneGetValues_, removeAllScenes_
-        '''
-        cdef float type_float
-        cdef bool type_bool
-        cdef uint8_t type_byte
-        cdef int32_t type_int
-        cdef int16_t type_short
-        cdef string type_string
-        cdef vector[string] strvect
-        cdef ValueID* cvalueID
-        cdef vector[ValueID] vect
-        ret = dict()
-        if self.manager.SceneGetValues(id, &vect):
-            while not vect.empty() :
-                cvalueID = &vect.back()
-                datatype = PyValueTypes[cvalueID.GetType()]
-                value_data = None
-                value_id = cvalueID.GetId()
-                if datatype == "Bool":
-                    cret = self.manager.SceneGetValueAsBool(id, deref(cvalueID), &type_bool)
-                    value_data = type_bool if cret else None
-                elif datatype == "Byte":
-                    cret = self.manager.SceneGetValueAsByte(id, deref(cvalueID), &type_byte)
-                    value_data = type_byte if cret else None
-                elif datatype == "Decimal":
-                    cret = self.manager.SceneGetValueAsFloat(id, deref(cvalueID), &type_float)
-                    value_data = type_float if cret else None
-                elif datatype == "Int":
-                    cret = self.manager.SceneGetValueAsInt(id, deref(cvalueID), &type_int)
-                    value_data = type_int if cret else None
-                elif datatype == "Short":
-                    cret = self.manager.SceneGetValueAsShort(id, deref(cvalueID), &type_short)
-                    value_data = type_short if cret else None
-                elif datatype == "String":
-                    cret = self.manager.SceneGetValueAsString(id, deref(cvalueID), &type_string)
-                    value_data = type_string.c_str() if cret else None
-                elif datatype == "Button":
-                    cret = self.manager.SceneGetValueAsBool(id, deref(cvalueID), &type_bool)
-                    value_data = type_bool if cret else None
-                elif datatype == "List":
-                    cret = self.manager.SceneGetValueListSelection(id, deref(cvalueID), &type_string)
-                    value_data = type_string.c_str() if cret else None
-                else :
-                    cret = self.manager.SceneGetValueAsString(id, deref(cvalueID), &type_string)
-                    value_data = type_string.c_str() if cret else None
-                ret[value_id] = value_data
-                vect.pop_back();
-        return ret
-
-
-    def addSceneValue(self, uint8_t sceneid, id, value):
-        '''
-.. _addSceneValue:
-
-Add a ValueID of value to an existing scene.
-
-Actually I don't know how to use it :)
-
-:param sceneid: The ID of a scene.
-:type sceneid: int
-:param id: The ID of a value.
-:type id: int
-:param value: The value to set
-:type value: bool, int, float, string
-:return: An integer representing the result of the operation
-    0 : The C method fails
-    1 : The C method succeed
-    2 : Can't find id in the map
-:rtype: int
-:see: getNumScenes_, getAllScenes_, sceneExists_, removeAllScenes_, \
-createScene_, removeScene_, activateScene_, getSceneLabel_, setSceneLabel_, \
-removeSceneValue_, setSceneValue_, sceneGetValues_
-
-        '''
-        cdef float type_float
-        cdef bool type_bool
-        cdef uint8_t type_byte
-        cdef int32_t type_int
-        cdef int16_t type_short
-        cdef string type_string
-        ret = 2
-        if values_map.find(id) != values_map.end():
-            datatype = PyValueTypes[values_map.at(id).GetType()]
-            if datatype == "Bool":
-                type_bool = value
-                cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_bool)
-                ret = 1 if cret else 0
-            elif datatype == "Byte":
-                type_byte = value
-                cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_byte)
-                ret = 1 if cret else 0
-            elif datatype == "Decimal":
-                type_float = value
-                cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_float)
-                ret = 1 if cret else 0
-            elif datatype == "Int":
-                type_int = value
-                cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_int)
-                ret = 1 if cret else 0
-            elif datatype == "Short":
-                type_short = value
-                cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_short)
-                ret = 1 if cret else 0
-            elif datatype == "String":
-                type_string = string(value)
-                cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_string)
-                ret = 1 if cret else 0
-            elif datatype == "Button":
-                type_bool = value
-                cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_bool)
-                ret = 1 if cret else 0
-            elif datatype == "List":
-                type_string = string(value)
-                cret = self.manager.AddSceneValueListSelection(sceneid, values_map.at(id), type_string)
-                ret = 1 if cret else 0
-        return ret
-
-    def removeSceneValue(self, uint8_t sceneid, id):
-        '''
-.. _removeSceneValue:
-
-Remove the Value ID from an existing scene.
-
-:param sceneid: The ID of a scene.
-:type sceneid: int
-:param id: The ID of a value.
-:type id: int
-:return: True if succee. False otherwise
-:rtype: bool
-:see: getNumScenes_, getAllScenes_, sceneExists_, removeAllScenes_, \
-createScene_, removeScene_, activateScene_, \
-getSceneLabel_, setSceneLabel_, removeSceneValue_, setSceneValue_, \
-sceneGetValues_
-
-        '''
-        if values_map.find(id) != values_map.end():
-            return self.manager.RemoveSceneValue(sceneid, values_map.at(id))
-        return False
-
-    def setSceneValue(self, uint8_t sceneid, id, value):
-        '''
-.. _setSceneValue:
-
-Set a value to an existing scene's ValueID.
-
-:param sceneid: The ID of a scene.
-:type sceneid: int
-:param id: The ID of a value.
-:type id: int
-:param value: The value to set
-:type value: bool, int, float, string
-:return: An integer representing the result of the operation
-    0 : The C method fails
-    1 : The C method succeed
-    2 : Can't find id in the map
-:rtype: int
-:see: getNumScenes_, getAllScenes_, sceneExists_, removeAllScenes_, \
-createScene_, removeScene_, activateScene_, \
-getSceneLabel_, setSceneLabel_, removeSceneValue_, addSceneValue_, \
-sceneGetValues_
-
-        '''
-        cdef float type_float
-        cdef bool type_bool
-        cdef uint8_t type_byte
-        cdef int32_t type_int
-        cdef int16_t type_short
-        cdef string type_string
-        ret = 2
-        if values_map.find(id) != values_map.end():
-            datatype = PyValueTypes[values_map.at(id).GetType()]
-            if datatype == "Bool":
-                type_bool = value
-                cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_bool)
-                ret = 1 if cret else 0
-            elif datatype == "Byte":
-                type_byte = value
-                cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_byte)
-                ret = 1 if cret else 0
-            elif datatype == "Decimal":
-                type_float = value
-                cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_float)
-                ret = 1 if cret else 0
-            elif datatype == "Int":
-                type_int = value
-                cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_int)
-                ret = 1 if cret else 0
-            elif datatype == "Short":
-                type_short = value
-                cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_short)
-                ret = 1 if cret else 0
-            elif datatype == "String":
-                type_string = string(value)
-                cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_string)
-                ret = 1 if cret else 0
-            elif datatype == "Button":
-                type_bool = value
-                cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_bool)
-                ret = 1 if cret else 0
-            elif datatype == "List":
-                type_string = string(value)
-                cret = self.manager.SetSceneValueListSelection(sceneid, values_map.at(id), type_string)
-                ret = 1 if cret else 0
-        return ret
-
-    def getSceneLabel(self, sceneid):
-        '''
-.. _getSceneLabel:
-
-Returns a label for the particular scene.
-
-:param sceneId: The ID of a scene.
-:type sceneId: int
-:param value: The value to set
-:type value: int
-:return: The label string.
-:rtype: str
-:see: getNumScenes_, getAllScenes_, sceneExists_, removeAllScenes_, \
-createScene_, removeScene_, activateScene_, \
-setSceneLabel_, removeSceneValue_, addSceneValue_, setSceneValue_, \
-sceneGetValues_
-
-        '''
-        cdef string c_string = self.manager.GetSceneLabel(sceneid)
-        return cstr_to_str(c_string.c_str())
-
-    def setSceneLabel(self, sceneid, str label):
-        '''
-.. _setSceneLabel:
-
-Sets a label for the particular scene.
-
-:param sceneId: The ID of the scene.
-:type sceneId: int
-:param value: The new value of the label.
-:type value: int
-:see: getNumScenes_, getAllScenes_, sceneExists_, removeAllScenes_, \
-createScene_, removeScene_, activateScene_, \
-getSceneLabel_, removeSceneValue_, addSceneValue_, setSceneValue_, \
-sceneGetValues_
-
-        '''
-        self.manager.SetSceneLabel(sceneid, str_to_cppstr(label))
-
-    def sceneExists(self, sceneid):
-        '''
-.. _sceneExists:
-
-Check if a Scene ID is defined.
-
-:param sceneId: The ID of the scene to check.
-:type sceneId: int
-:return: True if Scene ID exists.
-:rtype: bool
-:see: getNumScenes_, getAllScenes_, removeAllScenes_, \
-createScene_, removeScene_, activateScene_, \
-getSceneLabel_, setSceneLabel_, removeSceneValue_, addSceneValue_, \
-setSceneValue_, sceneGetValues_
-
-        '''
-        return self.manager.SceneExists(sceneid)
-
-    def activateScene(self, sceneid):
-        '''
-.. _activateScene:
-
-Activate given scene to perform all its actions.
-
-:param sceneId: The ID of the scene to activate.
-:type sceneId: int
-:return: True if it is successful.
-:rtype: bool
-:see: getNumScenes_, getAllScenes_, sceneExists_, removeAllScenes_, \
-createScene_, removeScene_, getSceneLabel_, setSceneLabel_, \
-removeSceneValue_, addSceneValue_, setSceneValue_, \
-sceneGetValues_
-
-        '''
-        return self.manager.ActivateScene(sceneid)
+#
+#     def getNumScenes(self):
+#         '''
+# .. _getNumScenes:
+#
+# Gets the number of scenes that have been defined
+#
+# :return: The number of scenes.
+# :rtype: int
+# :see: getAllScenes_, sceneExists_, \
+# createScene_, removeScene_, activateScene_, \
+# getSceneLabel_, setSceneLabel_, \
+# removeSceneValue_, addSceneValue_, setSceneValue_, \
+# sceneGetValues_, removeAllScenes_
+#
+#        '''
+#         return self.manager.GetNumScenes()
+#
+#     def getAllScenes(self):
+#         '''
+# .. _getAllScenes:
+#
+# Gets a set of all the SceneIds
+#
+# :return: A set() containing neighboring scene IDs
+# :rtype: set()
+# :see: getNumScenes_, sceneExists_, \
+# createScene_, removeScene_, activateScene_, \
+# getSceneLabel_, setSceneLabel_, \
+# removeSceneValue_, addSceneValue_, setSceneValue_, \
+# sceneGetValues_, removeAllScenes_
+#
+#         '''
+#         data = set()
+#         cdef uint32_t size = self.manager.GetNumScenes()
+#         # Allocate memory
+#         cdef uint8_t** dbuf = <uint8_t**>malloc(sizeof(uint8_t)*size)
+#         # return value is pointer to uint8_t[]
+#         cdef uint32_t count = self.manager.GetAllScenes(dbuf)
+#         if count == 0:
+#             #Don't need to allocate memory.
+#             free(dbuf)
+#             return data
+#         cdef RetAlloc retuint8 = RetAlloc(count)
+#         cdef uint8_t* p
+#         cdef uint32_t start = 0
+#         if count:
+#             try:
+#                 p = dbuf[0] # p is now pointing at first element of array
+#                 for i in range(start, count):
+#                     retuint8.data[i] = p[0]
+#                     data.add(retuint8.data[i])
+#                     p += 1
+#             finally:
+#                 # Free memory
+#                 free(dbuf)
+#                 pass
+#         return data
+#
+#     def removeAllScenes(self, homeid):
+#         '''
+# .. _removeAllScenes:
+#
+# Delete all scenes.
+#
+# :param homeid: The Home ID of the Z-Wave controller that manages the node.
+# :type homeid: int
+# :see: getNumScenes_, getAllScenes_, sceneExists_, \
+# removeScene_, activateScene_, getSceneLabel_, setSceneLabel_, \
+# removeSceneValue_, addSceneValue_, setSceneValue_, \
+# sceneGetValues_
+#
+#        '''
+#         self.manager.RemoveAllScenes(homeid)
+#
+#     def removeScene(self, sceneId):
+#         '''
+# .. _removeScene:
+#
+# Remove an existing Scene.
+#
+# :param sceneId: The unique Scene ID to be removed.
+# :type sceneId: int
+# :return: True if scene was removed.
+# :rtype: bool
+# :see: getNumScenes_, getAllScenes_, sceneExists_, \
+# createScene_, activateScene_, getSceneLabel_, setSceneLabel_, \
+# removeSceneValue_, addSceneValue_, setSceneValue_, \
+# sceneGetValues_, removeAllScenes_
+#
+#         '''
+#         return self.manager.RemoveScene(sceneId)
+#
+#     def createScene(self):
+#         '''
+# .. _createScene:
+#
+# Create a Scene.
+#
+# :return: Scene ID used to reference the scene. 0 is failure result.
+# :rtype: id
+# :see: getNumScenes_, getAllScenes_, sceneExists_, \
+# removeScene_, activateScene_, getSceneLabel_, setSceneLabel_, \
+# removeSceneValue_, addSceneValue_, setSceneValue_, \
+# sceneGetValues_, removeAllScenes_
+#
+#         '''
+#         return self.manager.CreateScene()
+#
+#     def sceneGetValues(self, uint8_t id):
+#         '''
+# .. _sceneGetValues:
+#
+# Retrieve the list of values from a scene.
+#
+# :param id: The ID of a scene.
+# :type id: int
+# :rtype: dict()
+# :return: A dict containing : {valueid : value, ...}
+# :see: getNumScenes_, getAllScenes_, sceneExists_, \
+# createScene_, removeScene_, getSceneLabel_, setSceneLabel_, \
+# removeSceneValue_, addSceneValue_, setSceneValue_, \
+# sceneGetValues_, removeAllScenes_
+#         '''
+#         cdef float type_float
+#         cdef bool type_bool
+#         cdef uint8_t type_byte
+#         cdef int32_t type_int
+#         cdef int16_t type_short
+#         cdef string type_string
+#         cdef vector[string] strvect
+#         cdef ValueID* cvalueID
+#         cdef vector[ValueID] vect
+#         ret = dict()
+#         if self.manager.SceneGetValues(id, &vect):
+#             while not vect.empty() :
+#                 cvalueID = &vect.back()
+#                 datatype = PyValueTypes[cvalueID.GetType()]
+#                 value_data = None
+#                 value_id = cvalueID.GetId()
+#                 if datatype == "Bool":
+#                     cret = self.manager.SceneGetValueAsBool(id, deref(cvalueID), &type_bool)
+#                     value_data = type_bool if cret else None
+#                 elif datatype == "Byte":
+#                     cret = self.manager.SceneGetValueAsByte(id, deref(cvalueID), &type_byte)
+#                     value_data = type_byte if cret else None
+#                 elif datatype == "Decimal":
+#                     cret = self.manager.SceneGetValueAsFloat(id, deref(cvalueID), &type_float)
+#                     value_data = type_float if cret else None
+#                 elif datatype == "Int":
+#                     cret = self.manager.SceneGetValueAsInt(id, deref(cvalueID), &type_int)
+#                     value_data = type_int if cret else None
+#                 elif datatype == "Short":
+#                     cret = self.manager.SceneGetValueAsShort(id, deref(cvalueID), &type_short)
+#                     value_data = type_short if cret else None
+#                 elif datatype == "String":
+#                     cret = self.manager.SceneGetValueAsString(id, deref(cvalueID), &type_string)
+#                     value_data = type_string.c_str() if cret else None
+#                 elif datatype == "Button":
+#                     cret = self.manager.SceneGetValueAsBool(id, deref(cvalueID), &type_bool)
+#                     value_data = type_bool if cret else None
+#                 elif datatype == "List":
+#                     cret = self.manager.SceneGetValueListSelection(id, deref(cvalueID), &type_string)
+#                     value_data = type_string.c_str() if cret else None
+#                 else :
+#                     cret = self.manager.SceneGetValueAsString(id, deref(cvalueID), &type_string)
+#                     value_data = type_string.c_str() if cret else None
+#                 ret[value_id] = value_data
+#                 vect.pop_back();
+#         return ret
+#
+#
+#     def addSceneValue(self, uint8_t sceneid, id, value):
+#         '''
+# .. _addSceneValue:
+#
+# Add a ValueID of value to an existing scene.
+#
+# Actually I don't know how to use it :)
+#
+# :param sceneid: The ID of a scene.
+# :type sceneid: int
+# :param id: The ID of a value.
+# :type id: int
+# :param value: The value to set
+# :type value: bool, int, float, string
+# :return: An integer representing the result of the operation
+#     0 : The C method fails
+#     1 : The C method succeed
+#     2 : Can't find id in the map
+# :rtype: int
+# :see: getNumScenes_, getAllScenes_, sceneExists_, removeAllScenes_, \
+# createScene_, removeScene_, activateScene_, getSceneLabel_, setSceneLabel_, \
+# removeSceneValue_, setSceneValue_, sceneGetValues_
+#
+#         '''
+#         cdef float type_float
+#         cdef bool type_bool
+#         cdef uint8_t type_byte
+#         cdef int32_t type_int
+#         cdef int16_t type_short
+#         cdef string type_string
+#         ret = 2
+#         if values_map.find(id) != values_map.end():
+#             datatype = PyValueTypes[values_map.at(id).GetType()]
+#             if datatype == "Bool":
+#                 type_bool = value
+#                 cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_bool)
+#                 ret = 1 if cret else 0
+#             elif datatype == "Byte":
+#                 type_byte = value
+#                 cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_byte)
+#                 ret = 1 if cret else 0
+#             elif datatype == "Decimal":
+#                 type_float = value
+#                 cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_float)
+#                 ret = 1 if cret else 0
+#             elif datatype == "Int":
+#                 type_int = value
+#                 cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_int)
+#                 ret = 1 if cret else 0
+#             elif datatype == "Short":
+#                 type_short = value
+#                 cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_short)
+#                 ret = 1 if cret else 0
+#             elif datatype == "String":
+#                 type_string = string(value)
+#                 cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_string)
+#                 ret = 1 if cret else 0
+#             elif datatype == "Button":
+#                 type_bool = value
+#                 cret = self.manager.AddSceneValue(sceneid, values_map.at(id), type_bool)
+#                 ret = 1 if cret else 0
+#             elif datatype == "List":
+#                 type_string = string(value)
+#                 cret = self.manager.AddSceneValueListSelection(sceneid, values_map.at(id), type_string)
+#                 ret = 1 if cret else 0
+#         return ret
+#
+#     def removeSceneValue(self, uint8_t sceneid, id):
+#         '''
+# .. _removeSceneValue:
+#
+# Remove the Value ID from an existing scene.
+#
+# :param sceneid: The ID of a scene.
+# :type sceneid: int
+# :param id: The ID of a value.
+# :type id: int
+# :return: True if succee. False otherwise
+# :rtype: bool
+# :see: getNumScenes_, getAllScenes_, sceneExists_, removeAllScenes_, \
+# createScene_, removeScene_, activateScene_, \
+# getSceneLabel_, setSceneLabel_, removeSceneValue_, setSceneValue_, \
+# sceneGetValues_
+#
+#         '''
+#         if values_map.find(id) != values_map.end():
+#             return self.manager.RemoveSceneValue(sceneid, values_map.at(id))
+#         return False
+#
+#     def setSceneValue(self, uint8_t sceneid, id, value):
+#         '''
+# .. _setSceneValue:
+#
+# Set a value to an existing scene's ValueID.
+#
+# :param sceneid: The ID of a scene.
+# :type sceneid: int
+# :param id: The ID of a value.
+# :type id: int
+# :param value: The value to set
+# :type value: bool, int, float, string
+# :return: An integer representing the result of the operation
+#     0 : The C method fails
+#     1 : The C method succeed
+#     2 : Can't find id in the map
+# :rtype: int
+# :see: getNumScenes_, getAllScenes_, sceneExists_, removeAllScenes_, \
+# createScene_, removeScene_, activateScene_, \
+# getSceneLabel_, setSceneLabel_, removeSceneValue_, addSceneValue_, \
+# sceneGetValues_
+#
+#         '''
+#         cdef float type_float
+#         cdef bool type_bool
+#         cdef uint8_t type_byte
+#         cdef int32_t type_int
+#         cdef int16_t type_short
+#         cdef string type_string
+#         ret = 2
+#         if values_map.find(id) != values_map.end():
+#             datatype = PyValueTypes[values_map.at(id).GetType()]
+#             if datatype == "Bool":
+#                 type_bool = value
+#                 cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_bool)
+#                 ret = 1 if cret else 0
+#             elif datatype == "Byte":
+#                 type_byte = value
+#                 cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_byte)
+#                 ret = 1 if cret else 0
+#             elif datatype == "Decimal":
+#                 type_float = value
+#                 cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_float)
+#                 ret = 1 if cret else 0
+#             elif datatype == "Int":
+#                 type_int = value
+#                 cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_int)
+#                 ret = 1 if cret else 0
+#             elif datatype == "Short":
+#                 type_short = value
+#                 cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_short)
+#                 ret = 1 if cret else 0
+#             elif datatype == "String":
+#                 type_string = string(value)
+#                 cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_string)
+#                 ret = 1 if cret else 0
+#             elif datatype == "Button":
+#                 type_bool = value
+#                 cret = self.manager.SetSceneValue(sceneid, values_map.at(id), type_bool)
+#                 ret = 1 if cret else 0
+#             elif datatype == "List":
+#                 type_string = string(value)
+#                 cret = self.manager.SetSceneValueListSelection(sceneid, values_map.at(id), type_string)
+#                 ret = 1 if cret else 0
+#         return ret
+#
+#     def getSceneLabel(self, sceneid):
+#         '''
+# .. _getSceneLabel:
+#
+# Returns a label for the particular scene.
+#
+# :param sceneId: The ID of a scene.
+# :type sceneId: int
+# :param value: The value to set
+# :type value: int
+# :return: The label string.
+# :rtype: str
+# :see: getNumScenes_, getAllScenes_, sceneExists_, removeAllScenes_, \
+# createScene_, removeScene_, activateScene_, \
+# setSceneLabel_, removeSceneValue_, addSceneValue_, setSceneValue_, \
+# sceneGetValues_
+#
+#         '''
+#         cdef string c_string = self.manager.GetSceneLabel(sceneid)
+#         return cstr_to_str(c_string.c_str())
+#
+#     def setSceneLabel(self, sceneid, str label):
+#         '''
+# .. _setSceneLabel:
+#
+# Sets a label for the particular scene.
+#
+# :param sceneId: The ID of the scene.
+# :type sceneId: int
+# :param value: The new value of the label.
+# :type value: int
+# :see: getNumScenes_, getAllScenes_, sceneExists_, removeAllScenes_, \
+# createScene_, removeScene_, activateScene_, \
+# getSceneLabel_, removeSceneValue_, addSceneValue_, setSceneValue_, \
+# sceneGetValues_
+#
+#         '''
+#         self.manager.SetSceneLabel(sceneid, str_to_cppstr(label))
+#
+#     def sceneExists(self, sceneid):
+#         '''
+# .. _sceneExists:
+#
+# Check if a Scene ID is defined.
+#
+# :param sceneId: The ID of the scene to check.
+# :type sceneId: int
+# :return: True if Scene ID exists.
+# :rtype: bool
+# :see: getNumScenes_, getAllScenes_, removeAllScenes_, \
+# createScene_, removeScene_, activateScene_, \
+# getSceneLabel_, setSceneLabel_, removeSceneValue_, addSceneValue_, \
+# setSceneValue_, sceneGetValues_
+#
+#         '''
+#         return self.manager.SceneExists(sceneid)
+#
+#     def activateScene(self, sceneid):
+#         '''
+# .. _activateScene:
+#
+# Activate given scene to perform all its actions.
+#
+# :param sceneId: The ID of the scene to activate.
+# :type sceneId: int
+# :return: True if it is successful.
+# :rtype: bool
+# :see: getNumScenes_, getAllScenes_, sceneExists_, removeAllScenes_, \
+# createScene_, removeScene_, getSceneLabel_, setSceneLabel_, \
+# removeSceneValue_, addSceneValue_, setSceneValue_, \
+# sceneGetValues_
+#
+#         '''
+#         return self.manager.ActivateScene(sceneid)
